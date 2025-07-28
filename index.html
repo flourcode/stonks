@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Reddit Grid</title>
+    <title>FIRE Threads Grid</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&display=swap');
         
@@ -32,7 +32,7 @@
         .header h1 {
             font-size: 2.5rem;
             font-weight: 600;
-            background: linear-gradient(45deg, #00ff88, #ff4500, #ffd700);
+            background: linear-gradient(45deg, #00ff88, #ffaa00, #00aaff);
             background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -103,23 +103,11 @@
             flex-shrink: 0;
         }
         
-        .sentiment-demo {
-            height: 4px;
-            background: linear-gradient(90deg, #ff4444 0%, #ffaa00 50%, #00ff88 100%);
+        .color-box {
+            width: 1rem;
+            height: 0.6rem;
             border-radius: 2px;
-            margin: 0.25rem 0;
-            position: relative;
-        }
-        
-        .sentiment-demo::after {
-            content: '';
-            position: absolute;
-            top: -1px;
-            left: 50%;
-            width: 2px;
-            height: 6px;
-            background: white;
-            border-radius: 1px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
         .loading {
@@ -150,6 +138,42 @@
             padding: 1rem;
         }
         
+        .category-section {
+            margin-bottom: 3rem;
+        }
+        
+        .category-title {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #00ff88;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border-left: 3px solid #00ff88;
+            padding-left: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .category-title.medium {
+            color: #ffaa00;
+            border-left-color: #ffaa00;
+        }
+        
+        .category-title.small {
+            color: #00aaff;
+            border-left-color: #00aaff;
+        }
+        
+        .member-count {
+            font-size: 0.6rem;
+            opacity: 0.7;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+        }
+        
         .sort-indicator {
             text-align: center;
             padding: 0.75rem;
@@ -163,12 +187,12 @@
         
         .news-grid {
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 1rem;
             margin-bottom: 2rem;
         }
         
-        .news-card {
+        .fire-card {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 8px;
@@ -177,12 +201,12 @@
             backdrop-filter: blur(5px);
             position: relative;
             overflow: hidden;
-            height: 320px;
+            height: 300px;
             display: flex;
             flex-direction: column;
         }
         
-        .news-card::before {
+        .fire-card::before {
             content: '';
             position: absolute;
             top: 0;
@@ -194,17 +218,25 @@
             transition: opacity 0.3s ease;
         }
         
-        .news-card:hover {
+        .fire-card.medium::before {
+            background: linear-gradient(90deg, transparent, #ffaa00, transparent);
+        }
+        
+        .fire-card.small::before {
+            background: linear-gradient(90deg, transparent, #00aaff, transparent);
+        }
+        
+        .fire-card:hover {
             transform: translateY(-2px);
             border-color: rgba(255, 255, 255, 0.15);
             background: rgba(255, 255, 255, 0.05);
         }
         
-        .news-card:hover::before {
+        .fire-card:hover::before {
             opacity: 1;
         }
         
-        .news-title {
+        .fire-title {
             font-size: 0.75rem;
             font-weight: 500;
             line-height: 1.2;
@@ -216,11 +248,19 @@
             overflow: hidden;
         }
         
-        .news-title:hover {
+        .fire-title:hover {
             color: #00ff88;
         }
         
-        .news-snippet {
+        .medium .fire-title:hover {
+            color: #ffaa00;
+        }
+        
+        .small .fire-title:hover {
+            color: #00aaff;
+        }
+        
+        .fire-snippet {
             font-size: 0.65rem;
             line-height: 1.3;
             opacity: 0.8;
@@ -229,10 +269,10 @@
             flex-grow: 1;
             overflow-y: auto;
             text-align: justify;
-            max-height: 6rem;
+            max-height: 5rem;
         }
         
-        .metrics-grid {
+        .fire-metrics {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             gap: 0.2rem;
@@ -241,47 +281,49 @@
             opacity: 0.9;
         }
         
-        .metric {
+        .fire-metric {
             display: flex;
             align-items: center;
             gap: 0.1rem;
             justify-content: center;
         }
         
-        .metric-icon {
+        .fire-metric-icon {
             font-size: 0.6rem;
         }
         
-        .sentiment-bar {
-            height: 3px;
-            background: linear-gradient(90deg, #ff4444 0%, #ffaa00 50%, #00ff88 100%);
-            border-radius: 2px;
-            margin-bottom: 0.5rem;
-            position: relative;
-        }
-        
-        .sentiment-indicator {
-            position: absolute;
-            top: -1px;
-            width: 2px;
-            height: 5px;
-            background: white;
-            border-radius: 1px;
-        }
-        
-        .top-ticker {
+        .fire-type {
             background: rgba(0, 255, 136, 0.15);
             border: 1px solid rgba(0, 255, 136, 0.3);
-            border-radius: 3px;
+            border-radius: 4px;
             padding: 0.2rem 0.4rem;
             font-size: 0.55rem;
             color: #00ff88;
             font-weight: 600;
             margin-bottom: 0.5rem;
             text-align: center;
+            text-transform: uppercase;
         }
         
-        .news-meta {
+        .fire-type.lean {
+            background: rgba(255, 170, 0, 0.15);
+            border-color: rgba(255, 170, 0, 0.3);
+            color: #ffaa00;
+        }
+        
+        .fire-type.fat {
+            background: rgba(0, 170, 255, 0.15);
+            border-color: rgba(0, 170, 255, 0.3);
+            color: #00aaff;
+        }
+        
+        .fire-type.coast {
+            background: rgba(170, 68, 255, 0.15);
+            border-color: rgba(170, 68, 255, 0.3);
+            color: #aa44ff;
+        }
+        
+        .fire-meta {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -293,9 +335,17 @@
             flex-shrink: 0;
         }
         
-        .source {
+        .fire-source {
             color: #00ff88;
             font-weight: 500;
+        }
+        
+        .medium .fire-source {
+            color: #ffaa00;
+        }
+        
+        .small .fire-source {
+            color: #00aaff;
         }
         
         .error {
@@ -305,33 +355,8 @@
             font-size: 0.8rem;
         }
         
-        /* Desktop */
-        @media (min-width: 1401px) {
-            .news-grid {
-                grid-template-columns: repeat(6, 1fr);
-            }
-        }
-        
-        /* Large Desktop */
-        @media (max-width: 1400px) and (min-width: 1201px) {
-            .news-grid {
-                grid-template-columns: repeat(5, 1fr);
-            }
-        }
-        
-        /* Medium Desktop */
-        @media (max-width: 1200px) and (min-width: 901px) {
-            .news-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-            
-            .legend-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        
-        /* Small Desktop/Large Tablet */
-        @media (max-width: 900px) and (min-width: 769px) {
+        /* Responsive breakpoints */
+        @media (max-width: 1200px) {
             .news-grid {
                 grid-template-columns: repeat(3, 1fr);
             }
@@ -341,223 +366,41 @@
             }
         }
         
-        /* Tablet Portrait */
-        @media (max-width: 768px) and (min-width: 601px) {
+        @media (max-width: 900px) {
+            .news-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .legend-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 600px) {
             .header h1 {
-                font-size: 2.2rem;
+                font-size: 2rem;
             }
             
             .news-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: 1fr;
                 gap: 0.75rem;
             }
             
-            .news-card {
+            .fire-card {
                 height: 280px;
-                padding: 0.9rem;
+                padding: 0.8rem;
             }
             
-            .news-title {
-                font-size: 0.7rem;
-            }
-            
-            .news-snippet {
-                font-size: 0.6rem;
-                max-height: 4.5rem;
-            }
-            
-            .metrics-grid {
+            .fire-metrics {
                 grid-template-columns: 1fr 1fr;
                 gap: 0.3rem;
             }
             
-            .metric {
-                justify-content: flex-start;
-                gap: 0.2rem;
-            }
-            
-            .legend-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .legend {
-                padding: 0.75rem;
-            }
-        }
-        
-        /* Mobile Landscape */
-        @media (max-width: 600px) and (min-width: 481px) {
-            .header {
-                padding: 1rem 0.75rem;
-            }
-            
-            .header h1 {
-                font-size: 1.8rem;
-            }
-            
-            .header p {
-                font-size: 0.65rem;
-            }
-            
-            .news-container {
-                padding: 0.75rem;
-            }
-            
-            .news-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 0.5rem;
-            }
-            
-            .news-card {
-                height: 260px;
-                padding: 0.75rem;
-            }
-            
-            .news-title {
-                font-size: 0.65rem;
-                max-height: 2.4rem;
-            }
-            
-            .news-snippet {
-                font-size: 0.55rem;
-                max-height: 4rem;
-            }
-            
-            .metrics-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 0.15rem;
-                font-size: 0.45rem;
-            }
-            
-            .metric {
-                justify-content: flex-start;
-                gap: 0.15rem;
-            }
-            
-            .metric-icon {
-                font-size: 0.55rem;
-            }
-            
-            .top-ticker {
-                font-size: 0.5rem;
-                padding: 0.15rem 0.3rem;
-            }
-            
-            .news-meta {
-                font-size: 0.45rem;
-            }
-            
-            .legend {
-                padding: 0.5rem;
-                margin-bottom: 0.75rem;
-            }
-            
-            .legend-title {
-                font-size: 0.7rem;
-            }
-            
-            .legend-item {
-                font-size: 0.55rem;
-                gap: 0.3rem;
-            }
-        }
-        
-        /* Mobile Portrait */
-        @media (max-width: 480px) {
-            .header {
-                padding: 0.75rem 0.5rem;
-            }
-            
-            .header h1 {
-                font-size: 1.6rem;
-            }
-            
-            .header p {
-                font-size: 0.6rem;
-            }
-            
-            .news-container {
-                padding: 0.5rem;
-            }
-            
-            .news-grid {
-                grid-template-columns: 1fr;
-                gap: 0.5rem;
-            }
-            
-            .news-card {
-                height: 280px;
-                padding: 0.75rem;
-            }
-            
-            .news-title {
-                font-size: 0.7rem;
-                max-height: 2.8rem;
-                line-height: 1.3;
-            }
-            
-            .news-snippet {
-                font-size: 0.6rem;
-                max-height: 5rem;
-                line-height: 1.4;
-            }
-            
-            .metrics-grid {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 0.1rem;
-                font-size: 0.45rem;
-            }
-            
-            .metric {
-                justify-content: center;
-                gap: 0.1rem;
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-            }
-            
-            .metric-icon {
-                font-size: 0.6rem;
-                margin-bottom: 0.1rem;
-            }
-            
-            .top-ticker {
-                font-size: 0.55rem;
-                padding: 0.2rem 0.4rem;
-            }
-            
-            .news-meta {
+            .fire-meta {
                 font-size: 0.45rem;
                 flex-direction: column;
                 gap: 0.2rem;
                 text-align: center;
-            }
-            
-            .sort-indicator {
-                font-size: 0.6rem;
-                padding: 0.5rem;
-            }
-            
-            .legend {
-                padding: 0.5rem;
-            }
-            
-            .legend-title {
-                font-size: 0.65rem;
-            }
-            
-            .legend-section {
-                padding: 0.5rem;
-            }
-            
-            .legend-item {
-                font-size: 0.5rem;
-                gap: 0.25rem;
-                margin-bottom: 0.3rem;
-            }
-            
-            .legend-icon {
-                font-size: 0.65rem;
             }
         }
         
@@ -582,15 +425,6 @@
             transform: rotate(180deg);
         }
         
-        @media (max-width: 480px) {
-            .refresh-btn {
-                padding: 0.6rem;
-                font-size: 0.7rem;
-                bottom: 0.75rem;
-                right: 0.75rem;
-            }
-        }
-        
         .api-note {
             text-align: center;
             padding: 0.75rem;
@@ -602,146 +436,148 @@
             background: rgba(255, 255, 255, 0.02);
         }
         
-        @media (max-width: 480px) {
-            .api-note {
-                font-size: 0.6rem;
-                padding: 0.5rem;
-            }
-        }
-        
         /* Touch-friendly improvements */
         @media (hover: none) and (pointer: coarse) {
-            .news-card:hover {
+            .fire-card:hover {
                 transform: none;
             }
             
-            .news-card:active {
+            .fire-card:active {
                 transform: translateY(-1px);
                 background: rgba(255, 255, 255, 0.05);
-            }
-            
-            .refresh-btn:hover {
-                transform: none;
-            }
-            
-            .refresh-btn:active {
-                transform: scale(0.95);
-                background: rgba(0, 255, 136, 0.2);
             }
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>STOCK.GRID</h1>
-        <p>Live • Reddit • Intelligence</p>
+        <h1>FIRE.THREADS</h1>
+        <p>Financial • Independence • Retire • Early</p>
     </div>
     
     <div class="news-container">
         <div class="api-note">
-            📊 Live Reddit posts with top mentioned stock ticker analysis
+            🔥 Live FIRE community discussions grouped by subreddit size and sorted by engagement
         </div>
         
         <div class="legend">
-            <div class="legend-title">📊 Live Data Legend</div>
+            <div class="legend-title">🔥 FIRE Community Legend</div>
             <div class="legend-grid">
                 <div class="legend-section">
-                    <h3>🔥 Reddit Metrics</h3>
+                    <h3>📊 Community Sizes</h3>
+                    <div class="legend-item">
+                        <div class="color-box" style="background: #00ff88;"></div>
+                        <span>Large Communities (200k+ members)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="color-box" style="background: #ffaa00;"></div>
+                        <span>Medium Communities (50k-200k members)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="color-box" style="background: #00aaff;"></div>
+                        <span>Small Communities (10k-50k members)</span>
+                    </div>
+                </div>
+                
+                <div class="legend-section">
+                    <h3>🔥 Thread Metrics</h3>
                     <div class="legend-item">
                         <span class="legend-icon">🔥</span>
-                        <span>Live upvotes/score from Reddit API</span>
+                        <span>Upvotes (community interest)</span>
                     </div>
                     <div class="legend-item">
                         <span class="legend-icon">💬</span>
-                        <span>Real-time comment count</span>
+                        <span>Comments (discussion activity)</span>
                     </div>
                     <div class="legend-item">
                         <span class="legend-icon">⚡</span>
-                        <span>Live upvote ratio percentage</span>
+                        <span>Upvote ratio (post quality)</span>
                     </div>
                     <div class="legend-item">
                         <span class="legend-icon">👤</span>
-                        <span>Actual Reddit username</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-icon">💰</span>
-                        <span>Most mentioned stock ticker</span>
-                    </div>
-                </div>
-                
-                <div class="legend-section">
-                    <h3>📈 Content Analysis</h3>
-                    <div class="legend-item">
-                        <span class="legend-icon">📝</span>
-                        <span>Original post content (title + text)</span>
+                        <span>Original poster</span>
                     </div>
                     <div class="legend-item">
                         <span class="legend-icon">⏰</span>
-                        <span>Time since post was created</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-icon">🔗</span>
-                        <span>Links to actual Reddit discussion</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-icon">🎯</span>
-                        <span>Stock mentions counted from title+content</span>
+                        <span>Time posted</span>
                     </div>
                 </div>
                 
                 <div class="legend-section">
-                    <h3>📊 Sentiment Analysis</h3>
+                    <h3>🎯 FIRE Types</h3>
                     <div class="legend-item">
-                        <span class="legend-icon">📈</span>
-                        <span>Bullish (moon, rocket, calls, buy)</span>
+                        <span style="color: #00ff88;">🟢</span>
+                        <span>Standard FIRE (traditional approach)</span>
                     </div>
                     <div class="legend-item">
-                        <span class="legend-icon">📉</span>
-                        <span>Bearish (crash, puts, sell, short)</span>
+                        <span style="color: #ffaa00;">🟠</span>
+                        <span>LeanFIRE (frugal/minimal lifestyle)</span>
                     </div>
                     <div class="legend-item">
-                        <span class="legend-icon">➡️</span>
-                        <span>Neutral (balanced/unclear sentiment)</span>
+                        <span style="color: #00aaff;">🔵</span>
+                        <span>FatFIRE (luxury retirement)</span>
                     </div>
-                    <div class="sentiment-demo"></div>
-                    <div style="font-size: 0.6rem; opacity: 0.7; margin-top: 0.25rem;">
-                        Sentiment bar: Red=Bearish, Yellow=Neutral, Green=Bullish
+                    <div class="legend-item">
+                        <span style="color: #aa44ff;">🟣</span>
+                        <span>CoastFI/BaristaFI (semi-retirement)</span>
                     </div>
                 </div>
             </div>
         </div>
         
         <div class="sort-indicator">
-            📈 Showing Reddit posts with most mentioned stock ticker, sorted by sentiment: Bullish → Neutral → Bearish
+            🔥 Communities grouped by size, threads sorted by upvotes and comments within each group
         </div>
         
         <div class="loading" id="loading">
             <div class="spinner"></div>
-            Loading live Reddit posts...
+            Loading FIRE community discussions...
         </div>
         <div id="news-content" style="display: none;"></div>
         <div id="error-content" style="display: none;"></div>
     </div>
     
     <button class="refresh-btn" onclick="loadPosts()" title="Refresh">
-        💹
+        🔥
     </button>
 
     <script>
-        const STOCK_SUBREDDITS = ['wallstreetbets', 'stocks', 'investing', 'StockMarket', 'pennystocks', 'smallstreetbets', 'options', 'SecurityAnalysis', 'ValueInvesting', 'SPACs', 'weedstocks', 'biotechstocks', 'superstonk'];
+        // Subreddits grouped by approximate member count
+        const FIRE_SUBREDDITS = {
+            large: [
+                { name: 'financialindependence', members: '1.5M' },
+                { name: 'fatFIRE', members: '446k' }
+            ],
+            medium: [
+                { name: 'leanfire', members: '336k' },
+                { name: 'ChubbyFIRE', members: '117k' },
+                { name: 'coastFIRE', members: '107k' }
+            ],
+            small: [
+                { name: 'FIRE', members: '45k' },
+                { name: 'BaristaFIRE', members: '22k' },
+                { name: 'GeoFIRE', members: '15k' },
+                { name: 'FlamingoFIRE', members: '8k' },
+                { name: 'MilitaryFIRE', members: '12k' }
+            ]
+        };
 
-        const STOCK_TICKERS = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'META', 'NVDA', 'AMD', 'NFLX', 'DIS', 'GME', 'AMC', 'BB', 'NOK', 'PLTR', 'SPCE', 'COIN', 'HOOD', 'SOFI', 'WISH', 'CLOV', 'MVIS', 'SNDL', 'TLRY', 'CGC', 'HEXO', 'ACB', 'APHA', 'SPY', 'QQQ', 'VTI', 'BTC', 'ETH'];
+        // Keywords for FIRE type detection
+        const FIRE_KEYWORDS = {
+            lean: ['lean', 'frugal', 'minimal', 'bare bones', 'basic'],
+            fat: ['fat', 'luxury', 'comfortable', 'high income', 'expensive'],
+            coast: ['coast', 'compound', 'cruise control', 'barista', 'semi'],
+            standard: ['fire', 'financial independence', 'retire early']
+        };
 
-        async function fetchSubreddit(subreddit, limit = 4) {
+        async function fetchSubreddit(subreddit, limit = 8) {
             try {
                 const response = await fetch(`https://www.reddit.com/r/${subreddit}/hot.json?limit=${limit}`);
                 const data = await response.json();
                 
                 return data.data.children.map(post => {
                     const fullText = post.data.title + ' ' + (post.data.selftext || '');
-                    const tickerCounts = countTickerMentions(fullText);
-                    const topTicker = getTopTicker(tickerCounts);
-                    const sentiment = analyzeSentiment(fullText);
+                    const fireType = detectFIREType(fullText, subreddit);
                     
                     return {
                         title: post.data.title,
@@ -754,10 +590,7 @@
                         comments: post.data.num_comments,
                         ratio: Math.round(post.data.upvote_ratio * 100),
                         author: post.data.author,
-                        tickerCounts: tickerCounts,
-                        topTicker: topTicker,
-                        sentiment: sentiment,
-                        sentimentScore: getSentimentScore(sentiment)
+                        fireType: fireType
                     };
                 });
             } catch (error) {
@@ -766,75 +599,50 @@
             }
         }
 
-        function countTickerMentions(text) {
-            const tickerCounts = {};
-            
-            const matches = text.match(/\$?([A-Z]{1,5})\b/g) || [];
-            
-            matches.forEach(match => {
-                const ticker = match.replace('$', '').toUpperCase();
-                if (STOCK_TICKERS.includes(ticker)) {
-                    tickerCounts[ticker] = (tickerCounts[ticker] || 0) + 1;
-                }
-            });
-            
-            return tickerCounts;
-        }
-
-        function getTopTicker(tickerCounts) {
-            if (Object.keys(tickerCounts).length === 0) return null;
-            
-            let topTicker = null;
-            let maxCount = 0;
-            
-            for (const [ticker, count] of Object.entries(tickerCounts)) {
-                if (count > maxCount) {
-                    maxCount = count;
-                    topTicker = ticker;
-                }
-            }
-            
-            return { ticker: topTicker, count: maxCount };
-        }
-
-        function analyzeSentiment(text) {
-            const bullishWords = ['moon', 'rocket', 'bull', 'buy', 'calls', 'up', 'green', 'gains', 'pump', 'squeeze', 'rally', 'breakout', 'diamond hands', 'hodl', 'to the moon'];
-            const bearishWords = ['crash', 'bear', 'put', 'down', 'red', 'dump', 'short', 'sell', 'drop', 'tank', 'collapse', 'bubble', 'correction'];
-            
+        function detectFIREType(text, subreddit) {
             const lowerText = text.toLowerCase();
-            const bullishCount = bullishWords.filter(word => lowerText.includes(word)).length;
-            const bearishCount = bearishWords.filter(word => lowerText.includes(word)).length;
+            const lowerSub = subreddit.toLowerCase();
             
-            if (bullishCount > bearishCount) return 'bullish';
-            if (bearishCount > bullishCount) return 'bearish';
-            return 'neutral';
+            // Check subreddit name first
+            if (lowerSub.includes('lean')) return 'lean';
+            if (lowerSub.includes('fat')) return 'fat';
+            if (lowerSub.includes('coast') || lowerSub.includes('barista')) return 'coast';
+            
+            // Check content keywords
+            if (FIRE_KEYWORDS.lean.some(word => lowerText.includes(word))) return 'lean';
+            if (FIRE_KEYWORDS.fat.some(word => lowerText.includes(word))) return 'fat';
+            if (FIRE_KEYWORDS.coast.some(word => lowerText.includes(word))) return 'coast';
+            
+            return 'standard';
         }
 
-        function getSentimentScore(sentiment) {
-            if (sentiment === 'bullish') return 3;
-            if (sentiment === 'neutral') return 2;
-            if (sentiment === 'bearish') return 1;
-            return 2;
-        }
-
-        function sortBySentiment(posts) {
-            return posts.sort((a, b) => {
-                if (a.sentimentScore !== b.sentimentScore) {
-                    return b.sentimentScore - a.sentimentScore;
-                }
-                return b.score - a.score;
-            });
-        }
-
-        async function fetchAllSubreddits() {
+        async function fetchSubredditGroup(group, categorySize) {
             const allPosts = [];
             
-            for (const sub of STOCK_SUBREDDITS) {
-                const posts = await fetchSubreddit(sub, 4);
+            for (const subreddit of group) {
+                const posts = await fetchSubreddit(subreddit.name, 8);
                 allPosts.push(...posts);
             }
             
-            return sortBySentiment(allPosts).slice(0, 48);
+            // Sort by score (upvotes) then by comments
+            return allPosts.sort((a, b) => {
+                if (a.score !== b.score) return b.score - a.score;
+                return b.comments - a.comments;
+            }).slice(0, 12); // Limit per category
+        }
+
+        async function fetchAllFIRESubreddits() {
+            const [largePosts, mediumPosts, smallPosts] = await Promise.all([
+                fetchSubredditGroup(FIRE_SUBREDDITS.large, 'large'),
+                fetchSubredditGroup(FIRE_SUBREDDITS.medium, 'medium'),
+                fetchSubredditGroup(FIRE_SUBREDDITS.small, 'small')
+            ]);
+            
+            return {
+                large: largePosts,
+                medium: mediumPosts,
+                small: smallPosts
+            };
         }
         
         function truncateText(text, wordLimit) {
@@ -859,119 +667,131 @@
             if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
             return num.toString();
         }
-
-        function getSentimentPosition(sentiment) {
-            if (sentiment === 'bullish') return '75%';
-            if (sentiment === 'bearish') return '25%';
-            return '50%';
-        }
         
-        function createPostCard(post) {
+        function createFIRECard(post, categorySize) {
             const timeAgo = getTimeAgo(post.publishedAt);
-            const snippet = truncateText(post.description || post.title, 30);
+            const snippet = truncateText(post.description || post.title, 25);
             
             return `
-                <div class="news-card">
-                    <a href="${post.redditUrl}" target="_blank" class="news-title">
+                <div class="fire-card ${categorySize}">
+                    <a href="${post.redditUrl}" target="_blank" class="fire-title">
                         ${post.title}
                     </a>
                     
-                    ${post.topTicker ? `
-                        <div class="top-ticker">
-                            💰 $${post.topTicker.ticker} (${post.topTicker.count}x)
-                        </div>
-                    ` : ''}
-                    
-                    <div class="sentiment-bar">
-                        <div class="sentiment-indicator" style="left: ${getSentimentPosition(post.sentiment)}"></div>
+                    <div class="fire-type ${post.fireType}">
+                        ${post.fireType.toUpperCase()}
                     </div>
                     
-                    <div class="metrics-grid">
-                        <div class="metric">
-                            <span class="metric-icon">🔥</span>
+                    <div class="fire-metrics">
+                        <div class="fire-metric">
+                            <span class="fire-metric-icon">🔥</span>
                             <span>${formatNumber(post.score)}</span>
                         </div>
-                        <div class="metric">
-                          <span class="metric-icon">💬</span>
-                           <span>${formatNumber(post.comments)}</span>
-                       </div>
-                       <div class="metric">
-                           <span class="metric-icon">⚡</span>
-                           <span>${post.ratio}%</span>
-                       </div>
-                       <div class="metric">
-                           <span class="metric-icon">👤</span>
-                           <span>u/${post.author.substring(0, 6)}</span>
-                       </div>
-                       <div class="metric">
-                           <span class="metric-icon">${post.sentiment === 'bullish' ? '📈' : post.sentiment === 'bearish' ? '📉' : '➡️'}</span>
-                           <span>${post.sentiment}</span>
-                       </div>
-                   </div>
-                   
-                   <div class="news-snippet">
-                       ${snippet}
-                   </div>
-                   
-                   <div class="news-meta">
-                       <span class="source">${post.source}</span>
-                       <span class="timestamp">${timeAgo} ago</span>
-                   </div>
-               </div>
-           `;
-       }
-       
-       function displayPosts(posts) {
-           const container = document.getElementById('news-content');
-           const html = `
-               <div class="news-grid">
-                   ${posts.map(post => createPostCard(post)).join('')}
-               </div>
-           `;
-           container.innerHTML = html;
-       }
-       
-       function showError(message) {
-           const errorContainer = document.getElementById('error-content');
-           errorContainer.innerHTML = `
-               <div class="error">
-                   <h3>Unable to load posts</h3>
-                   <p>${message}</p>
-                   <p>Check the browser console for details.</p>
-               </div>
-           `;
-           errorContainer.style.display = 'block';
-       }
-       
-       async function loadPosts() {
-           const loading = document.getElementById('loading');
-           const content = document.getElementById('news-content');
-           const errorContent = document.getElementById('error-content');
-           
-           loading.style.display = 'block';
-           content.style.display = 'none';
-           errorContent.style.display = 'none';
-           
-           try {
-               console.log('Fetching live Reddit posts...');
-               
-               const posts = await fetchAllSubreddits();
-               
-               console.log('Fetched posts:', posts.length);
-               
-               displayPosts(posts);
-               
-               loading.style.display = 'none';
-               content.style.display = 'block';
-               
-           } catch (error) {
-               console.error('Error loading posts:', error);
-               loading.style.display = 'none';
-               showError(error.message);
-           }
-       }
-       
-       document.addEventListener('DOMContentLoaded', loadPosts);
-   </script>
+                        <div class="fire-metric">
+                            <span class="fire-metric-icon">💬</span>
+                            <span>${formatNumber(post.comments)}</span>
+                        </div>
+                        <div class="fire-metric">
+                            <span class="fire-metric-icon">⚡</span>
+                            <span>${post.ratio}%</span>
+                        </div>
+                        <div class="fire-metric">
+                            <span class="fire-metric-icon">👤</span>
+                            <span>u/${post.author.substring(0, 6)}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="fire-snippet">
+                        ${snippet}
+                    </div>
+                    
+                    <div class="fire-meta">
+                        <span class="fire-source">${post.source}</span>
+                        <span class="timestamp">${timeAgo} ago</span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function displayPosts(postsData) {
+            const container = document.getElementById('news-content');
+            let html = '';
+            
+            const categoryTitles = {
+                large: 'Large Communities',
+                medium: 'Medium Communities', 
+                small: 'Small Communities'
+            };
+            
+            const categoryMembers = {
+                large: '200k+ members',
+                medium: '50k-200k members',
+                small: '10k-50k members'
+            };
+            
+            for (const [category, posts] of Object.entries(postsData)) {
+                if (posts.length > 0) {
+                    html += `
+                        <div class="category-section">
+                            <h2 class="category-title ${category}">
+                                ${categoryTitles[category]}
+                                <span class="member-count">${categoryMembers[category]}</span>
+                            </h2>
+                            <div class="news-grid">
+                                ${posts.map(post => createFIRECard(post, category)).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            container.innerHTML = html;
+        }
+        
+        function showError(message) {
+            const errorContainer = document.getElementById('error-content');
+            errorContainer.innerHTML = `
+                <div class="error">
+                    <h3>Unable to load FIRE discussions</h3>
+                    <p>${message}</p>
+                    <p>Check the browser console for details.</p>
+                </div>
+            `;
+            errorContainer.style.display = 'block';
+        }
+        
+        async function loadPosts() {
+            const loading = document.getElementById('loading');
+            const content = document.getElementById('news-content');
+            const errorContent = document.getElementById('error-content');
+            
+            loading.style.display = 'block';
+            content.style.display = 'none';
+            errorContent.style.display = 'none';
+            
+            try {
+                console.log('Fetching FIRE community discussions...');
+                
+                const postsData = await fetchAllFIRESubreddits();
+                
+                console.log('Fetched FIRE posts by category:', Object.entries(postsData).reduce((acc, [cat, posts]) => {
+                    acc[cat] = posts.length;
+                    return acc;
+                }, {}));
+                
+                displayPosts(postsData);
+                
+                loading.style.display = 'none';
+                content.style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error loading FIRE posts:', error);
+                loading.style.display = 'none';
+                showError(error.message);
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', loadPosts);
+    </script>
 </body>
-</html>  
+</html>
