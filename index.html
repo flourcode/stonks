@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Reddit Grid</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            font-family: 'JetBrains Mono', monospace;
+            color: #e0e6ed;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            background: linear-gradient(45deg, #00ff88, #ff4500, #ffd700);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .header p {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+        }
+        
+        .legend {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            backdrop-filter: blur(5px);
+        }
+        
+        .legend-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 0.75rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        
+        .legend-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .legend-section {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 6px;
+            padding: 0.75rem;
+        }
+        
+        .legend-section h3 {
+            font-size: 0.7rem;
+            color: #00d4ff;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+            padding-bottom: 0.25rem;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-bottom: 0.4rem;
+            font-size: 0.6rem;
+        }
+        
+        .legend-icon {
+            font-size: 0.75rem;
+            width: 1rem;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        
+        .sentiment-demo {
+            height: 4px;
+            background: linear-gradient(90deg, #ff4444 0%, #ffaa00 50%, #00ff88 100%);
+            border-radius: 2px;
+            margin: 0.25rem 0;
+            position: relative;
+        }
+        
+        .sentiment-demo::after {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 50%;
+            width: 2px;
+            height: 6px;
+            background: white;
+            border-radius: 1px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            font-size: 0.8rem;
+            opacity: 0.6;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #00ff88;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .news-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        
+        .sort-indicator {
+            text-align: center;
+            padding: 0.75rem;
+            font-size: 0.65rem;
+            opacity: 0.6;
+            background: rgba(0, 255, 136, 0.05);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+        
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .news-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            position: relative;
+            overflow: hidden;
+            height: 320px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .news-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ff88, transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .news-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .news-card:hover::before {
+            opacity: 1;
+        }
+        
+        .news-title {
+            font-size: 0.75rem;
+            font-weight: 500;
+            line-height: 1.2;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+            text-decoration: none;
+            display: block;
+            max-height: 2.8rem;
+            overflow: hidden;
+        }
+        
+        .news-title:hover {
+            color: #00ff88;
+        }
+        
+        .news-snippet {
+            font-size: 0.65rem;
+            line-height: 1.3;
+            opacity: 0.8;
+            margin-bottom: 0.75rem;
+            color: #b8c5d1;
+            flex-grow: 1;
+            overflow-y: auto;
+            text-align: justify;
+            max-height: 6rem;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.2rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.5rem;
+            opacity: 0.9;
+        }
+        
+        .metric {
+            display: flex;
+            align-items: center;
+            gap: 0.1rem;
+            justify-content: center;
+        }
+        
+        .metric-icon {
+            font-size: 0.6rem;
+        }
+        
+        .sentiment-bar {
+            height: 3px;
+            background: linear-gradient(90deg, #ff4444 0%, #ffaa00 50%, #00ff88 100%);
+            border-radius: 2px;
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+        
+        .sentiment-indicator {
+            position: absolute;
+            top: -1px;
+            width: 2px;
+            height: 5px;
+            background: white;
+            border-radius: 1px;
+        }
+        
+        .top-ticker {
+            background: rgba(0, 255, 136, 0.15);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 3px;
+            padding: 0.2rem 0.4rem;
+            font-size: 0.55rem;
+            color: #00ff88;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        
+        .news-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.5rem;
+            opacity: 0.6;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: auto;
+            flex-shrink: 0;
+        }
+        
+        .source {
+            color: #00ff88;
+            font-weight: 500;
+        }
+        
+        .error {
+            text-align: center;
+            padding: 3rem;
+            color: #ff6b6b;
+            font-size: 0.8rem;
+        }
+        
+        /* Desktop */
+        @media (min-width: 1401px) {
+            .news-grid {
+                grid-template-columns: repeat(6, 1fr);
+            }
+        }
+        
+        /* Large Desktop */
+        @media (max-width: 1400px) and (min-width: 1201px) {
+            .news-grid {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+        
+        /* Medium Desktop */
+        @media (max-width: 1200px) and (min-width: 901px) {
+            .news-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .legend-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        /* Small Desktop/Large Tablet */
+        @media (max-width: 900px) and (min-width: 769px) {
+            .news-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .legend-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        /* Tablet Portrait */
+        @media (max-width: 768px) and (min-width: 601px) {
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .news-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+            }
+            
+            .news-card {
+                height: 280px;
+                padding: 0.9rem;
+            }
+            
+            .news-title {
+                font-size: 0.7rem;
+            }
+            
+            .news-snippet {
+                font-size: 0.6rem;
+                max-height: 4.5rem;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 0.3rem;
+            }
+            
+            .metric {
+                justify-content: flex-start;
+                gap: 0.2rem;
+            }
+            
+            .legend-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .legend {
+                padding: 0.75rem;
+            }
+        }
+        
+        /* Mobile Landscape */
+        @media (max-width: 600px) and (min-width: 481px) {
+            .header {
+                padding: 1rem 0.75rem;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .header p {
+                font-size: 0.65rem;
+            }
+            
+            .news-container {
+                padding: 0.75rem;
+            }
+            
+            .news-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.5rem;
+            }
+            
+            .news-card {
+                height: 260px;
+                padding: 0.75rem;
+            }
+            
+            .news-title {
+                font-size: 0.65rem;
+                max-height: 2.4rem;
+            }
+            
+            .news-snippet {
+                font-size: 0.55rem;
+                max-height: 4rem;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 0.15rem;
+                font-size: 0.45rem;
+            }
+            
+            .metric {
+                justify-content: flex-start;
+                gap: 0.15rem;
+            }
+            
+            .metric-icon {
+                font-size: 0.55rem;
+            }
+            
+            .top-ticker {
+                font-size: 0.5rem;
+                padding: 0.15rem 0.3rem;
+            }
+            
+            .news-meta {
+                font-size: 0.45rem;
+            }
+            
+            .legend {
+                padding: 0.5rem;
+                margin-bottom: 0.75rem;
+            }
+            
+            .legend-title {
+                font-size: 0.7rem;
+            }
+            
+            .legend-item {
+                font-size: 0.55rem;
+                gap: 0.3rem;
+            }
+        }
+        
+        /* Mobile Portrait */
+        @media (max-width: 480px) {
+            .header {
+                padding: 0.75rem 0.5rem;
+            }
+            
+            .header h1 {
+                font-size: 1.6rem;
+            }
+            
+            .header p {
+                font-size: 0.6rem;
+            }
+            
+            .news-container {
+                padding: 0.5rem;
+            }
+            
+            .news-grid {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+            
+            .news-card {
+                height: 280px;
+                padding: 0.75rem;
+            }
+            
+            .news-title {
+                font-size: 0.7rem;
+                max-height: 2.8rem;
+                line-height: 1.3;
+            }
+            
+            .news-snippet {
+                font-size: 0.6rem;
+                max-height: 5rem;
+                line-height: 1.4;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.1rem;
+                font-size: 0.45rem;
+            }
+            
+            .metric {
+                justify-content: center;
+                gap: 0.1rem;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            
+            .metric-icon {
+                font-size: 0.6rem;
+                margin-bottom: 0.1rem;
+            }
+            
+            .top-ticker {
+                font-size: 0.55rem;
+                padding: 0.2rem 0.4rem;
+            }
+            
+            .news-meta {
+                font-size: 0.45rem;
+                flex-direction: column;
+                gap: 0.2rem;
+                text-align: center;
+            }
+            
+            .sort-indicator {
+                font-size: 0.6rem;
+                padding: 0.5rem;
+            }
+            
+            .legend {
+                padding: 0.5rem;
+            }
+            
+            .legend-title {
+                font-size: 0.65rem;
+            }
+            
+            .legend-section {
+                padding: 0.5rem;
+            }
+            
+            .legend-item {
+                font-size: 0.5rem;
+                gap: 0.25rem;
+                margin-bottom: 0.3rem;
+            }
+            
+            .legend-icon {
+                font-size: 0.65rem;
+            }
+        }
+        
+        .refresh-btn {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+            padding: 0.75rem;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+        
+        .refresh-btn:hover {
+            background: rgba(0, 255, 136, 0.2);
+            transform: rotate(180deg);
+        }
+        
+        @media (max-width: 480px) {
+            .refresh-btn {
+                padding: 0.6rem;
+                font-size: 0.7rem;
+                bottom: 0.75rem;
+                right: 0.75rem;
+            }
+        }
+        
+        .api-note {
+            text-align: center;
+            padding: 0.75rem;
+            font-size: 0.65rem;
+            opacity: 0.5;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            background: rgba(255, 255, 255, 0.02);
+        }
+        
+        @media (max-width: 480px) {
+            .api-note {
+                font-size: 0.6rem;
+                padding: 0.5rem;
+            }
+        }
+        
+        /* Touch-friendly improvements */
+        @media (hover: none) and (pointer: coarse) {
+            .news-card:hover {
+                transform: none;
+            }
+            
+            .news-card:active {
+                transform: translateY(-1px);
+                background: rgba(255, 255, 255, 0.05);
+            }
+            
+            .refresh-btn:hover {
+                transform: none;
+            }
+            
+            .refresh-btn:active {
+                transform: scale(0.95);
+                background: rgba(0, 255, 136, 0.2);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>STOCK.GRID</h1>
+        <p>Live • Reddit • Intelligence</p>
+    </div>
+    
+    <div class="news-container">
+        <div class="api-note">
+            📊 Live Reddit posts with top mentioned stock ticker analysis
+        </div>
+        
+        <div class="legend">
+            <div class="legend-title">📊 Live Data Legend</div>
+            <div class="legend-grid">
+                <div class="legend-section">
+                    <h3>🔥 Reddit Metrics</h3>
+                    <div class="legend-item">
+                        <span class="legend-icon">🔥</span>
+                        <span>Live upvotes/score from Reddit API</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-icon">💬</span>
+                        <span>Real-time comment count</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-icon">⚡</span>
+                        <span>Live upvote ratio percentage</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-icon">👤</span>
+                        <span>Actual Reddit username</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-icon">💰</span>
+                        <span>Most mentioned stock ticker</span>
+                    </div>
+                </div>
+                
+                <div class="legend-section">
+                    <h3>📈 Content Analysis</h3>
+                    <div class="legend-item">
+                        <span class="legend-icon">📝</span>
+                        <span>Original post content (title + text)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-icon">⏰</span>
+                        <span>Time since post was created</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-icon">🔗</span>
+                        <span>Links to actual Reddit discussion</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-icon">🎯</span>
+                        <span>Stock mentions counted from title+content</span>
+                    </div>
+                </div>
+                
+                <div class="legend-section">
+                    <h3>📊 Sentiment Analysis</h3>
+                    <div class="legend-item">
+                        <span class="legend-icon">📈</span>
+                        <span>Bullish (moon, rocket, calls, buy)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-icon">📉</span>
+                        <span>Bearish (crash, puts, sell, short)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-icon">➡️</span>
+                        <span>Neutral (balanced/unclear sentiment)</span>
+                    </div>
+                    <div class="sentiment-demo"></div>
+                    <div style="font-size: 0.6rem; opacity: 0.7; margin-top: 0.25rem;">
+                        Sentiment bar: Red=Bearish, Yellow=Neutral, Green=Bullish
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="sort-indicator">
+            📈 Showing Reddit posts with most mentioned stock ticker, sorted by sentiment: Bullish → Neutral → Bearish
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            Loading live Reddit posts...
+        </div>
+        <div id="news-content" style="display: none;"></div>
+        <div id="error-content" style="display: none;"></div>
+    </div>
+    
+    <button class="refresh-btn" onclick="loadPosts()" title="Refresh">
+        💹
+    </button>
+
+    <script>
+        const STOCK_SUBREDDITS = ['wallstreetbets', 'stocks', 'investing', 'StockMarket', 'pennystocks', 'smallstreetbets', 'options', 'SecurityAnalysis', 'ValueInvesting', 'SPACs', 'weedstocks', 'biotechstocks', 'superstonk'];
+
+        const STOCK_TICKERS = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'META', 'NVDA', 'AMD', 'NFLX', 'DIS', 'GME', 'AMC', 'BB', 'NOK', 'PLTR', 'SPCE', 'COIN', 'HOOD', 'SOFI', 'WISH', 'CLOV', 'MVIS', 'SNDL', 'TLRY', 'CGC', 'HEXO', 'ACB', 'APHA', 'SPY', 'QQQ', 'VTI', 'BTC', 'ETH'];
+
+        async function fetchSubreddit(subreddit, limit = 4) {
+            try {
+                const response = await fetch(`https://www.reddit.com/r/${subreddit}/hot.json?limit=${limit}`);
+                const data = await response.json();
+                
+                return data.data.children.map(post => {
+                    const fullText = post.data.title + ' ' + (post.data.selftext || '');
+                    const tickerCounts = countTickerMentions(fullText);
+                    const topTicker = getTopTicker(tickerCounts);
+                    const sentiment = analyzeSentiment(fullText);
+                    
+                    return {
+                        title: post.data.title,
+                        url: post.data.url.startsWith('/') ? `https://reddit.com${post.data.url}` : post.data.url,
+                        redditUrl: `https://reddit.com${post.data.permalink}`,
+                        source: `r/${subreddit}`,
+                        publishedAt: new Date(post.data.created_utc * 1000).toISOString(),
+                        description: post.data.selftext || post.data.title,
+                        score: post.data.score,
+                        comments: post.data.num_comments,
+                        ratio: Math.round(post.data.upvote_ratio * 100),
+                        author: post.data.author,
+                        tickerCounts: tickerCounts,
+                        topTicker: topTicker,
+                        sentiment: sentiment,
+                        sentimentScore: getSentimentScore(sentiment)
+                    };
+                });
+            } catch (error) {
+                console.error(`Error fetching r/${subreddit}:`, error);
+                return [];
+            }
+        }
+
+        function countTickerMentions(text) {
+            const tickerCounts = {};
+            
+            const matches = text.match(/\$?([A-Z]{1,5})\b/g) || [];
+            
+            matches.forEach(match => {
+                const ticker = match.replace('$', '').toUpperCase();
+                if (STOCK_TICKERS.includes(ticker)) {
+                    tickerCounts[ticker] = (tickerCounts[ticker] || 0) + 1;
+                }
+            });
+            
+            return tickerCounts;
+        }
+
+        function getTopTicker(tickerCounts) {
+            if (Object.keys(tickerCounts).length === 0) return null;
+            
+            let topTicker = null;
+            let maxCount = 0;
+            
+            for (const [ticker, count] of Object.entries(tickerCounts)) {
+                if (count > maxCount) {
+                    maxCount = count;
+                    topTicker = ticker;
+                }
+            }
+            
+            return { ticker: topTicker, count: maxCount };
+        }
+
+        function analyzeSentiment(text) {
+            const bullishWords = ['moon', 'rocket', 'bull', 'buy', 'calls', 'up', 'green', 'gains', 'pump', 'squeeze', 'rally', 'breakout', 'diamond hands', 'hodl', 'to the moon'];
+            const bearishWords = ['crash', 'bear', 'put', 'down', 'red', 'dump', 'short', 'sell', 'drop', 'tank', 'collapse', 'bubble', 'correction'];
+            
+            const lowerText = text.toLowerCase();
+            const bullishCount = bullishWords.filter(word => lowerText.includes(word)).length;
+            const bearishCount = bearishWords.filter(word => lowerText.includes(word)).length;
+            
+            if (bullishCount > bearishCount) return 'bullish';
+            if (bearishCount > bullishCount) return 'bearish';
+            return 'neutral';
+        }
+
+        function getSentimentScore(sentiment) {
+            if (sentiment === 'bullish') return 3;
+            if (sentiment === 'neutral') return 2;
+            if (sentiment === 'bearish') return 1;
+            return 2;
+        }
+
+        function sortBySentiment(posts) {
+            return posts.sort((a, b) => {
+                if (a.sentimentScore !== b.sentimentScore) {
+                    return b.sentimentScore - a.sentimentScore;
+                }
+                return b.score - a.score;
+            });
+        }
+
+        async function fetchAllSubreddits() {
+            const allPosts = [];
+            
+            for (const sub of STOCK_SUBREDDITS) {
+                const posts = await fetchSubreddit(sub, 4);
+                allPosts.push(...posts);
+            }
+            
+            return sortBySentiment(allPosts).slice(0, 48);
+        }
+        
+        function truncateText(text, wordLimit) {
+            if (!text) return '';
+            const words = text.split(' ');
+            if (words.length <= wordLimit) return text;
+            return words.slice(0, wordLimit).join(' ') + '...';
+        }
+        
+        function getTimeAgo(dateString) {
+            const now = new Date();
+            const published = new Date(dateString);
+            const diffInMinutes = Math.floor((now - published) / (1000 * 60));
+            
+            if (diffInMinutes < 60) return `${diffInMinutes}m`;
+            if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h`;
+            return `${Math.floor(diffInMinutes / 1440)}d`;
+        }
+
+        function formatNumber(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
+            return num.toString();
+        }
+
+        function getSentimentPosition(sentiment) {
+            if (sentiment === 'bullish') return '75%';
+            if (sentiment === 'bearish') return '25%';
+            return '50%';
+        }
+        
+        function createPostCard(post) {
+            const timeAgo = getTimeAgo(post.publishedAt);
+            const snippet = truncateText(post.description || post.title, 30);
+            
+            return `
+                <div class="news-card">
+                    <a href="${post.redditUrl}" target="_blank" class="news-title">
+                        ${post.title}
+                    </a>
+                    
+                    ${post.topTicker ? `
+                        <div class="top-ticker">
+                            💰 $${post.topTicker.ticker} (${post.topTicker.count}x)
+                        </div>
+                    ` : ''}
+                    
+                    <div class="sentiment-bar">
+                        <div class="sentiment-indicator" style="left: ${getSentimentPosition(post.sentiment)}"></div>
+                    </div>
+                    
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <span class="metric-icon">🔥</span>
+                            <span>${formatNumber(post.score)}</span>
+                        </div>
+                        <div class="metric">
+                          <span class="metric-icon">💬</span>
+                           <span>${formatNumber(post.comments)}</span>
+                       </div>
+                       <div class="metric">
+                           <span class="metric-icon">⚡</span>
+                           <span>${post.ratio}%</span>
+                       </div>
+                       <div class="metric">
+                           <span class="metric-icon">👤</span>
+                           <span>u/${post.author.substring(0, 6)}</span>
+                       </div>
+                       <div class="metric">
+                           <span class="metric-icon">${post.sentiment === 'bullish' ? '📈' : post.sentiment === 'bearish' ? '📉' : '➡️'}</span>
+                           <span>${post.sentiment}</span>
+                       </div>
+                   </div>
+                   
+                   <div class="news-snippet">
+                       ${snippet}
+                   </div>
+                   
+                   <div class="news-meta">
+                       <span class="source">${post.source}</span>
+                       <span class="timestamp">${timeAgo} ago</span>
+                   </div>
+               </div>
+           `;
+       }
+       
+       function displayPosts(posts) {
+           const container = document.getElementById('news-content');
+           const html = `
+               <div class="news-grid">
+                   ${posts.map(post => createPostCard(post)).join('')}
+               </div>
+           `;
+           container.innerHTML = html;
+       }
+       
+       function showError(message) {
+           const errorContainer = document.getElementById('error-content');
+           errorContainer.innerHTML = `
+               <div class="error">
+                   <h3>Unable to load posts</h3>
+                   <p>${message}</p>
+                   <p>Check the browser console for details.</p>
+               </div>
+           `;
+           errorContainer.style.display = 'block';
+       }
+       
+       async function loadPosts() {
+           const loading = document.getElementById('loading');
+           const content = document.getElementById('news-content');
+           const errorContent = document.getElementById('error-content');
+           
+           loading.style.display = 'block';
+           content.style.display = 'none';
+           errorContent.style.display = 'none';
+           
+           try {
+               console.log('Fetching live Reddit posts...');
+               
+               const posts = await fetchAllSubreddits();
+               
+               console.log('Fetched posts:', posts.length);
+               
+               displayPosts(posts);
+               
+               loading.style.display = 'none';
+               content.style.display = 'block';
+               
+           } catch (error) {
+               console.error('Error loading posts:', error);
+               loading.style.display = 'none';
+               showError(error.message);
+           }
+       }
+       
+       document.addEventListener('DOMContentLoaded', loadPosts);
+   </script>
+</body>
+</html>  
