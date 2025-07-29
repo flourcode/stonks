@@ -688,7 +688,7 @@
             
             // Detect post types
             for (const [type, keywords] of Object.entries(WSB_PATTERNS)) {
-                if (type === 'diamondHands' || type === 'paperHands') continue; // Hand types are separate
+                if (type === 'diamondHands' || type === 'paperHands') continue;
                 if (keywords.some(keyword => lowerText.includes(keyword))) {
                     characteristics.types.push(type);
                 }
@@ -725,11 +725,11 @@
             
             // Rocket emoji counts as bullish
             const rocketCount = (text.match(/🚀/g) || []).length;
-            bullishCount += rocketCount * 2; // Give rockets more weight
+            bullishCount += rocketCount * 2;
             
-            if (bullishCount > bearishCount * 1.5) { // Increased threshold for strong bullish
+            if (bullishCount > bearishCount * 1.5) {
                 return { sentiment: 'bullish', emoji: '🐂', text: 'Bullish' };
-            } else if (bearishCount > bullishCount * 1.5) { // Increased threshold for strong bearish
+            } else if (bearishCount > bullishCount * 1.5) {
                 return { sentiment: 'bearish', emoji: '🐻', text: 'Bearish' };
             } else {
                 return { sentiment: 'neutral', emoji: '⚖️', text: 'Neutral' };
@@ -767,311 +767,316 @@
                         subreddit: subreddit,
                         sentiment: sentimentData,
                         characteristics: characteristics,
-                        rocketCount: (fullText.match(/🚀/g) || []).length // Count rocket emojis
+                        rocketCount: (fullText.match(/🚀/g) || []).length
                     };
                 });
             } catch (error) {
                 console.error(`Error fetching r/${subreddit}:`, error);
-                return [];
-            }
-        }
+               return [];
+           }
+       }
 
-        // Function to fetch posts from all defined stock subreddits
-        async function fetchAllStockSubreddits() {
-            const subredditData = {};
-            
-            for (const subreddit of STOCK_SUBREDDITS) {
-                console.log(`Fetching r/${subreddit.name}...`);
-                const posts = await fetchSubreddit(subreddit.name, 10); // Fetch more posts to ensure variety for filters
-                
-                // Sort by score (upvotes) then by comments
-                const sortedPosts = posts.sort((a, b) => {
-                    if (a.score !== b.score) return b.score - a.score;
-                    return b.comments - a.comments;
-                });
-                
-                subredditData[subreddit.name] = {
-                    info: subreddit,
-                    posts: sortedPosts
-                };
-            }
-            
-            return subredditData;
-        }
-        
-        // Function to truncate text to a word limit
-        function truncateText(text, wordLimit) {
-            if (!text) return '';
-            const words = text.split(/\s+/);
-            if (words.length <= wordLimit) return text;
-            return words.slice(0, wordLimit).join(' ') + '...';
-        }
-        
-        // Function to format time difference
-        function getTimeAgo(dateString) {
-            const now = new Date();
-            const published = new Date(dateString);
-            const diffInSeconds = Math.floor((now - published) / 1000);
-            
-            if (diffInSeconds < 60) return `${diffInSeconds}s`;
-            const diffInMinutes = Math.floor(diffInSeconds / 60);
-            if (diffInMinutes < 60) return `${diffInMinutes}m`;
-            const diffInHours = Math.floor(diffInMinutes / 60);
-            if (diffInHours < 24) return `${diffInHours}h`;
-            const diffInDays = Math.floor(diffInHours / 24);
-            if (diffInDays < 30) return `${diffInDays}d`;
-            const diffInMonths = Math.floor(diffInDays / 30);
-            if (diffInMonths < 12) return `${diffInMonths}mo`;
-            return `${Math.floor(diffInMonths / 12)}y`;
-        }
+       // Fetch all subreddits
+       async function fetchAllStockSubreddits() {
+           const subredditData = {};
+           
+           for (const subreddit of STOCK_SUBREDDITS) {
+               console.log(`Fetching r/${subreddit.name}...`);
+               const posts = await fetchSubreddit(subreddit.name, 10);
+               
+               // Sort by engagement (weighted score)
+               const sortedPosts = posts.sort((a, b) => {
+                   const engagementA = a.score + (a.comments * 5);
+                   const engagementB = b.score + (b.comments * 5);
+                   return engagementB - engagementA;
+               });
+               
+               subredditData[subreddit.name] = {
+                   info: subreddit,
+                   posts: sortedPosts.slice(0, 8)
+               };
+           }
+           
+           return subredditData;
+       }
 
-        // Function to format large numbers (e.g., 12345 to 12.3k)
-        function formatNumber(num) {
-            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-            if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
-            return num.toString();
-        }
+       // Update statistics
+       function updateStats(posts) {
+           let hottestScore = 0;
+           let bullishCount = 0;
+           let bearishCount = 0;
+           let totalComments = 0;
+           let totalRockets = 0;
+
+           posts.forEach(post => {
+               if (post.score > hottestScore) {
+                   hottestScore = post.score;
+               }
+               if (post.sentiment.sentiment === 'bullish') bullishCount++;
+               if (post.sentiment.sentiment === 'bearish') bearishCount++;
+               totalComments += post.comments;
+               totalRockets += post.rocketCount;
+           });
+
+           document.getElementById('hottest-score').textContent = formatNumber(hottestScore) + ' upvotes';
+           
+           // Calculate sentiment
+           const total = bullishCount + bearishCount;
+           const bullishPercent = total > 0 ? Math.round((bullishCount / total) * 100) : 50;
+           const sentimentText = `${bullishPercent}% Bullish`;
+           const sentimentElement = document.getElementById('sentiment-ratio');
+           sentimentElement.textContent = sentimentText;
+           sentimentElement.className = bullishPercent > 60 ? 'stat-value bullish' : bullishPercent < 40 ? 'stat-value bearish' : 'stat-value';
+           
+           document.getElementById('total-comments').textContent = formatNumber(totalComments);
+           document.getElementById('rocket-count').textContent = totalRockets;
+       }
        
-        // Function to create HTML for WSB badges
-        function createWsbBadges(characteristics) {
-            let badgesHtml = '';
-            characteristics.types.forEach(type => {
-                if (type === 'dd') badgesHtml += `<span class="wsb-badge dd">DD</span>`;
-                if (type === 'yolo') badgesHtml += `<span class="wsb-badge yolo">YOLO</span>`;
-                if (type === 'gains') badgesHtml += `<span class="wsb-badge gains">Gains</span>`;
-                if (type === 'losses') badgesHtml += `<span class="wsb-badge losses">Losses</span>`;
-            });
-            return badgesHtml;
-        }
+       // Format time ago
+       function getTimeAgo(dateString) {
+           const now = new Date();
+           const published = new Date(dateString);
+           const diffInSeconds = Math.floor((now - published) / 1000);
+           
+           if (diffInSeconds < 60) return `${diffInSeconds}s ago`;
+           const diffInMinutes = Math.floor(diffInSeconds / 60);
+           if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+           const diffInHours = Math.floor(diffInMinutes / 60);
+           if (diffInHours < 24) return `${diffInHours}h ago`;
+           const diffInDays = Math.floor(diffInHours / 24);
+           if (diffInDays < 30) return `${diffInDays}d ago`;
+           const diffInMonths = Math.floor(diffInDays / 30);
+           if (diffInMonths < 12) return `${diffInMonths}mo ago`;
+           return `${Math.floor(diffInMonths / 12)}y ago`;
+       }
 
-        // Function to create HTML for hand type emoji
-        function createHandTypeEmoji(handType) {
-            if (handType === 'diamond') return '<span class="hand-indicator" title="Diamond Hands">💎🙌</span>';
-            if (handType === 'paper') return '<span class="hand-indicator" title="Paper Hands">🧻🙌</span>';
-            return '';
-        }
+       // Format large numbers
+       function formatNumber(num) {
+           if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+           if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
+           return num.toString();
+       }
 
-        // Function to create HTML for a single stock card
-        function createStockCard(post, subredditType) {
-            const timeAgo = getTimeAgo(post.publishedAt);
-            const snippet = truncateText(post.description, 40); 
-            const cardClass = `stock-card ${post.sentiment.sentiment} ${post.score > 500 || post.comments > 100 ? 'high-engagement' : ''}`; // Highlight high engagement posts
-            const wsbBadges = post.subreddit === 'wallstreetbets' ? createWsbBadges(post.characteristics) : '';
-            const handTypeEmoji = post.subreddit === 'wallstreetbets' ? createHandTypeEmoji(post.characteristics.handType) : '';
-            
-            return `
-                <div class="${cardClass}" tabindex="0" role="article" 
-                    aria-labelledby="post-title-${post.subreddit}-${post.score}" 
-                    aria-describedby="post-snippet-${post.subreddit}-${post.score}"
-                    data-sentiment="${post.sentiment.sentiment}"
-                    data-subreddit-type="${subredditType}"
-                    data-score="${post.score}"
-                    data-comments="${post.comments}"
-                    data-dd="${post.characteristics.types.includes('dd')}"
-                    data-yolo="${post.characteristics.types.includes('yolo')}"
-                >
-                    ${handTypeEmoji}
-                    <a href="${post.redditUrl}" target="_blank" rel="noopener noreferrer" 
-                        class="stock-title" id="post-title-${post.subreddit}-${post.score}">
-                        ${post.title}
-                    </a>
-                    
-                    <div class="stock-type ${subredditType}">R/${post.subreddit.toUpperCase()} ${wsbBadges}</div>
-                    
-                    <div class="sentiment-indicator ${post.sentiment.sentiment}">
-                        <span class="sentiment-emoji" aria-hidden="true">${post.sentiment.emoji}</span>
-                        <span class="sentiment-text">${post.sentiment.text}</span>
-                    </div>
-                    
-                    <p class="stock-snippet" id="post-snippet-${post.subreddit}-${post.score}">
-                        ${snippet}
-                    </p>
-                    
-                    <div class="stock-metrics">
-                        <div class="stock-metric" title="${post.score} Upvotes">
-                            <span class="stock-metric-icon" aria-hidden="true">🔥</span>
-                            <span>${formatNumber(post.score)}</span>
-                        </div>
-                        <div class="stock-metric" title="${post.comments} Comments">
-                            <span class="stock-metric-icon" aria-hidden="true">💬</span>
-                            <span>${formatNumber(post.comments)}</span>
-                        </div>
-                        <div class="stock-metric" title="${post.ratio}% Upvote Ratio">
-                            <span class="stock-metric-icon" aria-hidden="true">⚡</span>
-                            <span>${post.ratio}%</span>
-                        </div>
-                        <div class="stock-metric" title="Posted by u/${post.author}">
-                            <span class="stock-metric-icon" aria-hidden="true">👤</span>
-                            <span>u/${truncateText(post.author, 1)}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="stock-meta">
-                        <span class="stock-source" aria-label="Source subreddit">R/${post.subreddit.toUpperCase()}</span>
-                        <time class="timestamp" datetime="${post.publishedAt}" aria-label="Time posted">${timeAgo} ago</time>
-                    </div>
-                </div>
-            `;
-        }
-       
-        // Function to display fetched posts in the UI
-        function displayPosts(postsToDisplay) {
-            const container = document.getElementById('news-content');
-            let html = '';
-            
-            // Group posts by subreddit for display
-            const groupedPosts = postsToDisplay.reduce((acc, post) => {
-                if (!acc[post.subreddit]) {
-                    acc[post.subreddit] = [];
-                }
-                acc[post.subreddit].push(post);
-                return acc;
-            }, {});
+       // Truncate text
+       function truncateText(text, wordLimit) {
+           if (!text) return '';
+           const words = text.split(/\s+/);
+           if (words.length <= wordLimit) return text;
+           return words.slice(0, wordLimit).join(' ') + '...';
+       }
+      
+       // Create stock card HTML
+       function createStockCard(post, subredditType) {
+           const timeAgo = getTimeAgo(post.publishedAt);
+           const snippet = truncateText(post.description, 50);
+           
+           // Card classes
+           let cardClasses = ['stock-card', post.sentiment.sentiment];
+           if (post.score > 5000 || post.comments > 500) {
+               cardClasses.push('high-engagement');
+           }
+           
+           // Create badges
+           let badges = '';
+           if (post.characteristics.types.includes('dd')) {
+               badges += '<span class="wsb-badge dd">DD</span>';
+           }
+           if (post.characteristics.types.includes('yolo')) {
+               badges += '<span class="wsb-badge yolo">YOLO</span>';
+           }
+           if (post.characteristics.types.includes('gains')) {
+               badges += '<span class="wsb-badge gains">GAINS</span>';
+           }
+           if (post.characteristics.types.includes('losses')) {
+               badges += '<span class="wsb-badge losses">LOSSES</span>';
+           }
+           
+           // Hand indicator
+           let handIndicator = '';
+           if (post.characteristics.handType === 'diamond') {
+               handIndicator = '<span class="hand-indicator" title="Diamond Hands">💎🙌</span>';
+           } else if (post.characteristics.handType === 'paper') {
+               handIndicator = '<span class="hand-indicator" title="Paper Hands">🧻🙌</span>';
+           }
+           
+           return `
+               <div class="${cardClasses.join(' ')}" 
+                   data-sentiment="${post.sentiment.sentiment}"
+                   data-score="${post.score}"
+                   data-types="${post.characteristics.types.join(',')}">
+                   ${handIndicator}
+                   <a href="${post.redditUrl}" target="_blank" rel="noopener noreferrer" 
+                       class="stock-title">
+                       ${post.title}
+                   </a>
+                   
+                   <div class="stock-type ${subredditType}">r/${post.subreddit}</div>
+                   ${badges}
+                   
+                   <div class="sentiment-indicator ${post.sentiment.sentiment}">
+                       <span class="sentiment-emoji">${post.sentiment.emoji}</span>
+                       <span class="sentiment-text">${post.sentiment.text}</span>
+                   </div>
+                   
+                   <p class="stock-snippet">
+                       ${snippet}
+                   </p>
+                   
+                   <div class="stock-metrics">
+                       <div class="stock-metric">
+                           <span class="stock-metric-icon">⬆️</span>
+                           <span>${formatNumber(post.score)}</span>
+                       </div>
+                       <div class="stock-metric">
+                           <span class="stock-metric-icon">💬</span>
+                           <span>${formatNumber(post.comments)}</span>
+                       </div>
+                       <div class="stock-metric">
+                           <span class="stock-metric-icon">📊</span>
+                           <span>${post.ratio}%</span>
+                       </div>
+                       <div class="stock-metric">
+                           <span class="stock-metric-icon">🚀</span>
+                           <span>${post.rocketCount}</span>
+                       </div>
+                   </div>
+                   
+                   <div class="stock-meta">
+                       <span class="stock-source">u/${post.author}</span>
+                       <time class="timestamp">${timeAgo}</time>
+                   </div>
+               </div>
+           `;
+       }
+      
+       // Display posts
+       function displayPosts(subredditData) {
+           const container = document.getElementById('news-content');
+           let html = '';
+           allPosts = [];
+           
+           for (const subredditInfo of STOCK_SUBREDDITS) {
+               const data = subredditData[subredditInfo.name];
+               if (data && data.posts.length > 0) {
+                   allPosts = allPosts.concat(data.posts);
+                   
+                   html += `
+                       <section class="subreddit-section">
+                           <h2 class="subreddit-title">
+                               r/${data.info.name}
+                               <span class="member-count">${data.info.members} members</span>
+                           </h2>
+                           <p class="subreddit-description">${data.info.description}</p>
+                           <div class="news-grid">
+                               ${data.posts.map(post => createStockCard(post, data.info.type)).join('')}
+                           </div>
+                       </section>
+                   `;
+               }
+           }
+           
+           container.innerHTML = html;
+           updateStats(allPosts);
+           applyFilter(currentFilter);
+       }
 
-            // Loop through subreddits in the predefined order to maintain consistency
-            for (const subredditInfo of STOCK_SUBREDDITS) {
-                const postsForSubreddit = groupedPosts[subredditInfo.name];
-                if (postsForSubreddit && postsForSubreddit.length > 0) {
-                    html += `
-                        <section class="subreddit-section">
-                            <h2 class="subreddit-title">
-                                r/${subredditInfo.name}
-                                <span class="member-count">${subredditInfo.members} members</span>
-                            </h2>
-                            <p class="subreddit-description">${subredditInfo.description}</p>
-                            <div class="news-grid">
-                                ${postsForSubreddit.map(post => createStockCard(post, subredditInfo.type)).join('')}
-                            </div>
-                        </section>
-                    `;
-                }
-            }
-            
-            container.innerHTML = html;
-        }
+       // Filter posts
+       function filterPosts(filter) {
+           currentFilter = filter;
+           
+           // Update active button
+           document.querySelectorAll('.filter-btn').forEach(btn => {
+               btn.classList.remove('active');
+           });
+           event.target.classList.add('active');
+           
+           applyFilter(filter);
+       }
 
-        // Function to update global market stats
-        function updateMarketStats(posts) {
-            const hottestScoreElement = document.getElementById('hottest-score');
-            const sentimentRatioElement = document.getElementById('sentiment-ratio');
-            const totalCommentsElement = document.getElementById('total-comments');
-            const rocketCountElement = document.getElementById('rocket-count');
+       function applyFilter(filter) {
+           const cards = document.querySelectorAll('.stock-card');
+           
+           cards.forEach(card => {
+               let show = true;
+               
+               switch(filter) {
+                   case 'bullish':
+                       show = card.dataset.sentiment === 'bullish';
+                       break;
+                   case 'bearish':
+                       show = card.dataset.sentiment === 'bearish';
+                       break;
+                   case 'hot':
+                       show = parseInt(card.dataset.score) > 1000;
+                       break;
+                   case 'dd':
+                       show = card.dataset.types.includes('dd');
+                       break;
+                   case 'yolo':
+                       show = card.dataset.types.includes('yolo');
+                       break;
+               }
+               
+               card.style.display = show ? 'flex' : 'none';
+           });
+       }
+      
+       // Show error
+       function showError(message) {
+           const errorContainer = document.getElementById('error-content');
+           errorContainer.innerHTML = `
+               <div class="error">
+                   <h3>Unable to load discussions</h3>
+                   <p>${message || 'Failed to fetch data from Reddit. Please try again later.'}</p>
+                   <p>Check your internet connection or Reddit may be experiencing issues.</p>
+               </div>
+           `;
+           errorContainer.style.display = 'block';
+       }
+      
+       // Load posts
+       async function loadPosts() {
+           const loading = document.getElementById('loading');
+           const content = document.getElementById('news-content');
+           const errorContent = document.getElementById('error-content');
+           
+           loading.style.display = 'flex';
+           content.style.display = 'none';
+           errorContent.style.display = 'none';
+           
+           try {
+               console.log('Fetching stock discussions...');
+               
+               const subredditData = await fetchAllStockSubreddits();
+               
+               console.log('Successfully loaded discussions');
+               
+               displayPosts(subredditData);
+               
+               loading.style.display = 'none';
+               content.style.display = 'block';
+               
+           } catch (error) {
+               console.error('Error loading posts:', error);
+               loading.style.display = 'none';
+               showError(error.message);
+           }
+       }
+      
+       // Initialize
+       document.addEventListener('DOMContentLoaded', () => {
+           loadPosts();
+           
+           // Auto-refresh every 5 minutes
+           setInterval(loadPosts, 300000);
+       });
 
-            let totalBullish = 0;
-            let totalBearish = 0;
-            let totalComments = 0;
-            let totalRocketEmojis = 0;
-            let hottestScore = 0;
-
-            posts.forEach(post => {
-                if (post.sentiment.sentiment === 'bullish') {
-                    totalBullish++;
-                } else if (post.sentiment.sentiment === 'bearish') {
-                    totalBearish++;
-                }
-                totalComments += post.comments;
-                totalRocketEmojis += post.rocketCount;
-                if (post.score > hottestScore) {
-                    hottestScore = post.score;
-                }
-            });
-
-            const totalSentimentPosts = totalBullish + totalBearish;
-            let sentimentPercentage = 0;
-            if (totalSentimentPosts > 0) {
-                sentimentPercentage = (totalBullish / totalSentimentPosts) * 100;
-            }
-
-            hottestScoreElement.textContent = formatNumber(hottestScore);
-            sentimentRatioElement.textContent = `${sentimentPercentage.toFixed(1)}% Bullish`;
-            sentimentRatioElement.className = `stat-value ${sentimentPercentage >= 50 ? 'bullish' : 'bearish'}`;
-            totalCommentsElement.textContent = formatNumber(totalComments);
-            rocketCountElement.textContent = formatNumber(totalRocketEmojis);
-        }
-       
-        // Function to show error message
-        function showError(message) {
-            const errorContainer = document.getElementById('error-content');
-            errorContainer.innerHTML = `
-                <div class="error" role="alert" aria-live="assertive">
-                    <h3>Unable to load stock discussions</h3>
-                    <p>${message || 'An unknown error occurred. Please try again later.'}</p>
-                    <p>This might be due to API rate limits or network issues.</p>
-                </div>
-            `;
-            errorContainer.style.display = 'block';
-        }
-
-        // Function to filter posts based on selected category
-        function filterPosts(filterType) {
-            currentFilter = filterType;
-            const filterButtons = document.querySelectorAll('.filter-btn');
-            filterButtons.forEach(button => {
-                if (button.onclick.toString().includes(`'${filterType}'`)) {
-                    button.classList.add('active');
-                } else {
-                    button.classList.remove('active');
-                }
-            });
-
-            let filtered = [];
-            if (filterType === 'all') {
-                filtered = allPosts;
-            } else if (filterType === 'bullish') {
-                filtered = allPosts.filter(post => post.sentiment.sentiment === 'bullish');
-            } else if (filterType === 'bearish') {
-                filtered = allPosts.filter(post => post.sentiment.sentiment === 'bearish');
-            } else if (filterType === 'hot') {
-                filtered = [...allPosts].sort((a, b) => (b.score + b.comments) - (a.score + a.comments)); // Sort by combined engagement
-            } else if (filterType === 'dd') {
-                filtered = allPosts.filter(post => post.characteristics.types.includes('dd'));
-            } else if (filterType === 'yolo') {
-                filtered = allPosts.filter(post => post.characteristics.types.includes('yolo'));
-            }
-            
-            displayPosts(filtered);
-        }
-       
-        // Main function to load and display posts
-        async function loadPosts() {
-            const loading = document.getElementById('loading');
-            const content = document.getElementById('news-content');
-            const errorContent = document.getElementById('error-content');
-            
-            // Show loading, hide content and errors
-            loading.style.display = 'flex';
-            content.style.display = 'none';
-            errorContent.style.display = 'none';
-            
-            try {
-                console.log('Fetching stock market discussions...');
-                
-                const subredditData = await fetchAllStockSubreddits();
-                
-                console.log('Fetched stock posts from all subreddits');
-
-                // Flatten all posts into a single array for filtering and stats
-                allPosts = Object.values(subredditData).flatMap(data => data.posts);
-                
-                // Update market stats
-                updateMarketStats(allPosts);
-
-                // Display posts with the current filter
-                filterPosts(currentFilter);
-                
-                // Hide loading, show content
-                loading.style.display = 'none';
-                content.style.display = 'block';
-                
-            } catch (error) {
-                console.error('Error loading stock posts:', error);
-                loading.style.display = 'none';
-                showError(error.message);
-            }
-        }
-       
-        // Load posts when the DOM is fully loaded
-        document.addEventListener('DOMContentLoaded', loadPosts);
-    </script>
+       // Keyboard shortcuts
+       document.addEventListener('keydown', (e) => {
+           if (e.key === 'r' || e.key === 'R') {
+               loadPosts();
+           }
+       });
+   </script>
 </body>
 </html>
