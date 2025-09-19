@@ -3,1080 +3,541 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STONK ALERTS - Market Sentiment Tracker</title>
+    <title>Market Pulse</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-gradient-start: #0a0a0a;
-            --bg-gradient-mid: #1a1a2e;
-            --bg-gradient-end: #16213e;
-            --text-color-primary: #e0e6ed;
-            --text-color-secondary: #b8c5d1;
-            --accent-color: #00ff88;
-            --accent-color-light: rgba(0, 255, 136, 0.1);
-            --accent-color-border: rgba(0, 255, 136, 0.3);
-            --bear-color: #ff4444;
-            --bear-color-light: rgba(255, 68, 68, 0.1);
-            --bear-color-border: rgba(255, 68, 68, 0.3);
-            --card-bg: rgba(255, 255, 255, 0.03);
-            --card-border: rgba(255, 255, 255, 0.08);
-            --header-bg: rgba(0, 0, 0, 0.3);
-            --header-border: rgba(255, 255, 255, 0.1);
-            --section-bg: rgba(255, 255, 255, 0.02);
-            --info-color-blue: #00aaff;
-            --info-color-orange: #ffaa00;
-            --info-color-purple: #aa44ff;
-            --diamond-blue: #00d4ff;
-            --paper-yellow: #ffeb3b;
-            --yolo-orange: #ff6b00;
-
-            --font-family-mono: 'JetBrains Mono', monospace;
-            --spacing-xs: 0.25rem;
-            --spacing-sm: 0.5rem;
-            --spacing-md: 1rem;
-            --spacing-lg: 1.5rem;
-            --spacing-xl: 2rem;
+            --bg-primary: #000000;
+            --bg-secondary: #1c1c1e;
+            --text-primary: #ffffff;
+            --text-secondary: #98989d;
+            --accent-green: #30d158;
+            --accent-red: #ff453a;
+            --accent-blue: #007aff;
+            --border-color: #2c2c2e;
+            --card-bg: rgba(28, 28, 30, 0.8);
+            
+            --font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --radius: 16px;
+            --spacing: 1rem;
         }
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-mid) 50%, var(--bg-gradient-end) 100%);
-            font-family: var(--font-family-mono);
-            color: var(--text-color-primary);
-            min-height: 100vh;
-            overflow-x: hidden;
-            line-height: 1.5;
+            background: var(--bg-primary);
+            font-family: var(--font-family);
+            color: var(--text-primary);
+            line-height: 1.4;
+            -webkit-font-smoothing: antialiased;
         }
-        
+
         .header {
             text-align: center;
-            padding: var(--spacing-xl) var(--spacing-md) var(--spacing-lg);
-            background: var(--header-bg);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--header-border);
+            padding: 3rem 1rem 2rem;
+            background: linear-gradient(180deg, var(--bg-primary) 0%, rgba(0,0,0,0.95) 100%);
             position: sticky;
             top: 0;
             z-index: 100;
+            backdrop-filter: blur(20px);
         }
-        
+
         .header h1 {
             font-size: 2.5rem;
             font-weight: 700;
-            margin-bottom: var(--spacing-sm);
-            letter-spacing: -0.02em;
-            color: #fff;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.03em;
         }
 
-        .header .subtitle {
-            font-size: 1rem;
-            color: var(--text-color-secondary);
-            margin-bottom: var(--spacing-sm);
-        }
-        
         .header p {
-            font-size: 0.8rem;
-            opacity: 0.8;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            font-weight: 400;
         }
 
-        /* Market Stats Bar */
-        .stats-bar {
-            background: rgba(0, 0, 0, 0.4);
-            padding: var(--spacing-md);
+        .pulse-indicator {
             display: flex;
             justify-content: center;
-            gap: 2rem;
-            flex-wrap: wrap;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(8px);
+            align-items: center;
+            gap: 1rem;
+            margin: 2rem 0;
+            padding: 1rem;
         }
 
-        .stat-item {
+        .sentiment-score {
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(20px);
         }
 
-        .stat-label {
-            font-size: 0.75rem;
-            opacity: 0.7;
-            text-transform: uppercase;
+        .sentiment-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            animation: pulse 2s infinite;
         }
 
-        .stat-value {
-            font-size: 1.1rem;
-            font-weight: 700;
+        .sentiment-dot.bearish {
+            background: var(--accent-red);
         }
 
-        .stat-value.bullish {
-            color: var(--accent-color);
+        .sentiment-dot.neutral {
+            background: var(--text-secondary);
         }
 
-        .stat-value.bearish {
-            color: var(--bear-color);
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
-        /* WSB Indicators */
-        .wsb-badge {
-            display: inline-block;
-            padding: 0.15rem 0.4rem;
-            border-radius: 4px;
-            font-size: 0.6rem;
+        .sentiment-text {
+            font-size: 1rem;
             font-weight: 600;
-            text-transform: uppercase;
-            margin-left: 0.5rem;
-            letter-spacing: 0.05em;
-        }
-
-        .wsb-badge.dd {
-            background: rgba(65, 105, 225, 0.2);
-            border: 1px solid rgba(65, 105, 225, 0.4);
-            color: #6495ed;
-        }
-
-        .wsb-badge.yolo {
-            background: rgba(255, 107, 0, 0.2);
-            border: 1px solid rgba(255, 107, 0, 0.4);
-            color: var(--yolo-orange);
-        }
-
-        .wsb-badge.gains {
-            background: rgba(0, 255, 136, 0.2);
-            border: 1px solid rgba(0, 255, 136, 0.4);
-            color: var(--accent-color);
-        }
-
-        .wsb-badge.losses {
-            background: rgba(255, 68, 68, 0.2);
-            border: 1px solid rgba(255, 68, 68, 0.4);
-            color: var(--bear-color);
-        }
-
-        /* Hand type indicators */
-        .hand-indicator {
-            position: absolute;
-            top: var(--spacing-sm);
-            right: var(--spacing-sm);
-            font-size: 1.2rem;
-            opacity: 0.9;
         }
 
         .loading {
-            text-align: center;
-            padding: var(--spacing-xl);
-            font-size: 0.9rem;
-            opacity: 0.7;
             display: flex;
-            align-items: center;
             justify-content: center;
-            gap: var(--spacing-sm);
-            color: var(--accent-color);
+            align-items: center;
+            padding: 4rem;
+            gap: 1rem;
         }
-        
+
         .spinner {
-            display: inline-block;
             width: 24px;
             height: 24px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
+            border: 2px solid var(--border-color);
+            border-top: 2px solid var(--accent-blue);
             border-radius: 50%;
-            border-top-color: var(--accent-color);
-            animation: spin 0.8s ease-in-out infinite;
+            animation: spin 1s linear infinite;
         }
-        
+
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-        
-        .news-container {
-            max-width: 1400px;
+
+        .feed {
+            max-width: 800px;
             margin: 0 auto;
-            padding: var(--spacing-lg);
+            padding: 0 1rem 4rem;
         }
 
-        /* Filter buttons */
-        .filter-bar {
+        .discussion {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            margin-bottom: 1rem;
+            padding: 1.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(20px);
+        }
+
+        .discussion:hover {
+            border-color: var(--text-secondary);
+            transform: translateY(-2px);
+        }
+
+        .discussion-header {
             display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-bottom: var(--spacing-xl);
-            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
         }
 
-        .filter-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--text-color-primary);
-            padding: 0.6rem 1.2rem;
-            border-radius: 8px;
-            cursor: pointer;
+        .sentiment-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
             font-size: 0.75rem;
             font-weight: 600;
-            transition: all 0.3s ease;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.5px;
         }
 
-        .filter-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateY(-1px);
+        .sentiment-badge.bullish {
+            background: rgba(48, 209, 88, 0.15);
+            color: var(--accent-green);
+            border: 1px solid rgba(48, 209, 88, 0.3);
         }
 
-        .filter-btn.active {
-            background: var(--accent-color);
-            color: #000;
-            border-color: var(--accent-color);
-        }
-        
-        .subreddit-section {
-            margin-bottom: var(--spacing-xl);
-            padding-top: var(--spacing-md);
-        }
-        
-        .subreddit-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: var(--accent-color);
-            margin-bottom: var(--spacing-sm);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            border-left: 4px solid var(--accent-color);
-            padding-left: var(--spacing-md);
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
-        }
-        
-        .member-count {
-            font-size: 0.7rem;
-            opacity: 0.8;
-            background: var(--accent-color-light);
-            padding: var(--spacing-xs) var(--spacing-sm);
-            border-radius: 4px;
-            color: var(--accent-color);
-            font-weight: 500;
-        }
-        
-        .subreddit-description {
-            font-size: 0.8rem;
-            opacity: 0.9;
-            margin-bottom: var(--spacing-lg);
-            padding-left: calc(var(--spacing-md) + 4px);
-            line-height: 1.6;
-            color: var(--text-color-secondary);
-        }
-        
-        .news-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: var(--spacing-md);
-            margin-bottom: var(--spacing-xl);
-        }
-        
-        .stock-card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 10px;
-            padding: var(--spacing-md);
-            transition: all 0.3s ease;
-            backdrop-filter: blur(6px);
-            position: relative;
-            overflow: hidden;
-            height: 340px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        .sentiment-badge.bearish {
+            background: rgba(255, 69, 58, 0.15);
+            color: var(--accent-red);
+            border: 1px solid rgba(255, 69, 58, 0.3);
         }
 
-        .stock-card.high-engagement {
-            border-color: rgba(0, 255, 136, 0.3);
-            box-shadow: 0 0 15px rgba(0, 255, 136, 0.1);
-        }
-        
-        .stock-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
-            opacity: 0;
-            transition: opacity 0.3s ease;
+        .sentiment-badge.neutral {
+            background: rgba(152, 152, 157, 0.15);
+            color: var(--text-secondary);
+            border: 1px solid rgba(152, 152, 157, 0.3);
         }
 
-        .stock-card.bearish::before {
-            background: linear-gradient(90deg, transparent, var(--bear-color), transparent);
-        }
-        
-        .stock-card:hover {
-            transform: translateY(-3px);
-            border-color: rgba(255, 255, 255, 0.2);
-            background: rgba(255, 255, 255, 0.05);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-        }
-        
-        .stock-card:hover::before {
-            opacity: 1;
-        }
-        
-        .stock-title {
-            font-size: 0.9rem;
+        .discussion-title {
+            font-size: 1.1rem;
             font-weight: 600;
             line-height: 1.3;
-            margin-bottom: var(--spacing-sm);
-            color: #ffffff;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
             text-decoration: none;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .discussion-title:hover {
+            color: var(--accent-blue);
+        }
+
+        .discussion-excerpt {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
             display: -webkit-box;
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            max-height: 3.9rem;
-        }
-        
-        .stock-title:hover {
-            color: var(--accent-color);
-        }
-        
-        .stock-type {
-            background: var(--accent-color-light);
-            border: 1px solid var(--accent-color-border);
-            border-radius: 5px;
-            padding: 0.25rem 0.5rem;
-            font-size: 0.6rem;
-            color: var(--accent-color);
-            font-weight: 600;
-            margin-bottom: var(--spacing-sm);
-            text-align: center;
-            text-transform: uppercase;
-            align-self: flex-start;
         }
 
-        .stock-type.serious { background-color: rgba(0, 255, 136, 0.15); border-color: rgba(0, 255, 136, 0.3); color: var(--accent-color); }
-        .stock-type.yolo { background-color: rgba(255, 170, 0, 0.15); border-color: rgba(255, 170, 0, 0.3); color: var(--info-color-orange); }
-        .stock-type.trading { background-color: rgba(0, 170, 255, 0.15); border-color: rgba(0, 170, 255, 0.3); color: var(--info-color-blue); }
-        .stock-type.penny { background-color: rgba(170, 68, 255, 0.15); border-color: rgba(170, 68, 255, 0.3); color: var(--info-color-purple); }
-        .stock-type.value { background-color: rgba(128, 0, 128, 0.15); border-color: rgba(128, 0, 128, 0.3); color: #c080ff; }
-
-        .sentiment-indicator {
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-            margin-bottom: var(--spacing-sm);
-            font-size: 0.65rem;
-            opacity: 0.9;
-        }
-
-        .sentiment-emoji {
-            font-size: 1.2rem;
-        }
-
-        .sentiment-text {
-            text-transform: uppercase;
-            font-weight: 600;
-            letter-spacing: 0.05em;
-        }
-
-        .sentiment-indicator.bullish .sentiment-text {
-            color: var(--accent-color);
-        }
-
-        .sentiment-indicator.bearish .sentiment-text {
-            color: var(--bear-color);
-        }
-
-        .sentiment-indicator.neutral .sentiment-text {
-            color: #ffaa00;
-        }
-
-        .stock-snippet {
-            font-size: 0.75rem;
-            line-height: 1.5;
-            opacity: 0.85;
-            margin-bottom: var(--spacing-md);
-            color: var(--text-color-secondary);
-            flex-grow: 1;
-            overflow-y: auto;
-            text-align: left;
-            max-height: 6rem;
-            scrollbar-width: thin;
-            scrollbar-color: var(--accent-color) transparent;
-        }
-
-        .stock-snippet::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .stock-snippet::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-        }
-
-        .stock-snippet::-webkit-scrollbar-thumb {
-            background-color: var(--accent-color);
-            border-radius: 10px;
-            border: 1px solid var(--card-bg);
-        }
-        
-        .stock-metrics {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            margin-bottom: var(--spacing-sm);
-            font-size: 0.6rem;
-            opacity: 0.95;
-            flex-wrap: wrap;
-            gap: var(--spacing-xs);
-        }
-        
-        .stock-metric {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-            color: var(--text-color-primary);
-            min-width: 60px;
-            justify-content: center;
-        }
-        
-        .stock-metric-icon {
-            font-size: 0.8rem;
-            color: var(--accent-color);
-        }
-        
-        .stock-meta {
+        .discussion-meta {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.55rem;
-            opacity: 0.7;
-            text-transform: uppercase;
-            letter-spacing: 0.07em;
-            margin-top: auto;
-            flex-shrink: 0;
-            padding-top: var(--spacing-sm);
-            border-top: 1px dashed rgba(255, 255, 255, 0.05);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
         }
-        
-        .stock-source {
-            color: var(--accent-color);
+
+        .discussion-stats {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .discussion-source {
             font-weight: 500;
         }
 
-        .timestamp {
-            white-space: nowrap;
+        .refresh-button {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 56px;
+            height: 56px;
+            background: var(--accent-blue);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 122, 255, 0.3);
+            z-index: 1000;
         }
-        
+
+        .refresh-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(0, 122, 255, 0.4);
+        }
+
         .error {
             text-align: center;
-            padding: var(--spacing-xl);
-            color: #ff6b6b;
-            font-size: 0.9rem;
-            background: rgba(255, 107, 107, 0.1);
-            border: 1px solid rgba(255, 107, 107, 0.3);
-            border-radius: 8px;
-            margin: var(--spacing-lg) auto;
+            padding: 3rem 1rem;
+            color: var(--accent-red);
             max-width: 600px;
+            margin: 0 auto;
         }
 
         .error h3 {
-            margin-bottom: var(--spacing-sm);
-            font-size: 1.1rem;
-        }
-        
-        .refresh-btn {
-            position: fixed;
-            bottom: var(--spacing-lg);
-            right: var(--spacing-lg);
-            background: var(--accent-color-light);
-            border: 1px solid var(--accent-color-border);
-            color: var(--accent-color);
-            padding: var(--spacing-md);
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.2rem;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(12px);
-            z-index: 1000;
-            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .refresh-btn:hover {
-            background: rgba(0, 255, 136, 0.25);
-            transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(0, 255, 136, 0.3);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
         }
 
-        /* Info box */
-        .info-box {
-            background: var(--section-bg);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: var(--spacing-md);
-            margin-bottom: var(--spacing-xl);
-            font-size: 0.8rem;
-            line-height: 1.6;
-            opacity: 0.9;
+        .error p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
         }
-        
-        /* Responsive breakpoints */
-        @media (max-width: 1200px) {
-            .news-grid {
-                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            }
-        }
-        
-        @media (max-width: 900px) {
-            .news-grid {
-                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            }
-        }
-        
-        @media (max-width: 600px) {
+
+        @media (max-width: 768px) {
             .header h1 {
                 font-size: 2rem;
             }
-            .news-container {
-                padding: var(--spacing-md);
+            
+            .feed {
+                padding: 0 0.75rem 4rem;
             }
-            .news-grid {
-                grid-template-columns: 1fr;
-                gap: var(--spacing-sm);
+            
+            .discussion {
+                padding: 1.25rem;
             }
-            .stock-card {
-                height: auto;
-                min-height: 320px;
+            
+            .discussion-header {
+                flex-direction: column;
+                gap: 0.75rem;
+                align-items: flex-start;
             }
-            .stats-bar {
-                gap: 1rem;
-                padding: 0.8rem;
-            }
-            .filter-bar {
+            
+            .discussion-meta {
+                flex-direction: column;
                 gap: 0.5rem;
-            }
-            .filter-btn {
-                padding: 0.5rem 0.8rem;
-                font-size: 0.7rem;
+                align-items: flex-start;
             }
         }
     </style>
 </head>
 <body>
     <header class="header">
-        <h1>📈 STONK ALERTS 📉</h1>
-        <div class="subtitle">Real-Time Market Sentiment Analysis</div>
-        <p>Tracking Reddit's Financial Communities</p>
+        <h1>Market Pulse</h1>
+        <p>Real-time sentiment from Reddit's trading communities</p>
+        
+        <div class="pulse-indicator">
+            <div class="sentiment-score">
+                <div class="sentiment-dot" id="sentiment-dot"></div>
+                <span class="sentiment-text" id="sentiment-text">Analyzing...</span>
+            </div>
+        </div>
     </header>
 
-    <div class="stats-bar" id="stats-bar">
-        <div class="stat-item">
-            <span class="stat-label">Top Post:</span>
-            <span class="stat-value" id="hottest-score">Loading...</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-label">Market Sentiment:</span>
-            <span class="stat-value" id="sentiment-ratio">Loading...</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-label">Active Discussions:</span>
-            <span class="stat-value" id="total-comments">Loading...</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-label">🚀 Count:</span>
-            <span class="stat-value bullish" id="rocket-count">Loading...</span>
-        </div>
-    </div>
-    
-    <main class="news-container">
-        <div class="info-box">
-            <strong>Welcome to STONK ALERTS</strong> - Your real-time window into Reddit's investment communities. 
-            Track market sentiment, identify trending stocks, and see what retail investors are discussing. 
-            Remember: This is aggregated social media content, not financial advice. Always do your own research.
-        </div>
-
-        <div class="filter-bar">
-            <button class="filter-btn active" onclick="filterPosts('all')">All Posts</button>
-            <button class="filter-btn" onclick="filterPosts('bullish')">🐂 Bullish</button>
-            <button class="filter-btn" onclick="filterPosts('bearish')">🐻 Bearish</button>
-            <button class="filter-btn" onclick="filterPosts('hot')">🔥 Trending</button>
-            <button class="filter-btn" onclick="filterPosts('dd')">📊 DD/Analysis</button>
-            <button class="filter-btn" onclick="filterPosts('yolo')">🎲 High Risk</button>
+    <main class="feed">
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <span>Reading market sentiment...</span>
         </div>
         
-        <div class="loading" id="loading" role="status" aria-live="assertive">
-            <div class="spinner"></div>
-            Loading market discussions...
-        </div>
-        <div id="news-content" style="display: none;"></div>
-        <div id="error-content" style="display: none;"></div>
+        <div id="discussions" style="display: none;"></div>
+        <div id="error" style="display: none;"></div>
     </main>
-    
-    <button class="refresh-btn" onclick="loadPosts()" title="Refresh Discussions">
+
+    <button class="refresh-button" onclick="loadDiscussions()" title="Refresh">
         ↻
     </button>
 
     <script>
-        // Stock subreddits configuration
-        const STOCK_SUBREDDITS = [
-            {
-                name: 'wallstreetbets',
-                members: '15M+',
-                description: 'High-risk trading strategies and market speculation. Known for options trading and momentum plays.',
-                type: 'yolo'
-            },
-            {
-                name: 'stocks',
-                members: '7M+', 
-                description: 'Fundamental analysis and long-term investment discussions. Focus on company research and market trends.',
-                type: 'serious'
-            },
-            {
-                name: 'StockMarket',
-                members: '2M+',
-                description: 'Active trading strategies and technical analysis. Popular among day traders and swing traders.',
-                type: 'trading'
-            },
-            {
-                name: 'pennystocks',
-                members: '2M+',
-                description: 'Small-cap and micro-cap stock discussions. High volatility plays under $5.',
-                type: 'penny'
-            },
-            {
-                name: 'UndervaluedStonks',
-                members: '150k+',
-                description: 'Value investing community focused on finding undervalued opportunities through fundamental analysis.',
-                type: 'value'
-            }
-        ];
-
-        // Enhanced sentiment keywords
+        const SUBREDDITS = ['wallstreetbets', 'stocks', 'StockMarket', 'investing'];
+        
         const SENTIMENT_KEYWORDS = {
-            bullish: ['moon', 'rocket', 'bull', 'bullish', 'buy', 'calls', 'long', 'up', 'green', 'gains', 'pump', 'squeeze', 'rally', 'breakout', 'diamond hands', 'hodl', 'to the moon', 'stonks', 'yolo', 'printer', 'brrrr', 'ath', 'all time high', 'gap up', 'support', 'oversold', 'undervalued', 'accumulation', 'catalyst', 'gamma squeeze', 'short squeeze', 'buy the dip', 'btfd', 'leaps', 'itm'],
-            bearish: ['crash', 'bear', 'bearish', 'put', 'puts', 'short', 'down', 'red', 'dump', 'sell', 'drop', 'tank', 'collapse', 'bubble', 'correction', 'recession', 'rug pull', 'drill', 'capitulation', 'gap down', 'resistance', 'overbought', 'overvalued', 'dead cat', 'falling knife', 'bag holder', 'margin call', 'theta gang', 'iv crush', 'worthless', 'expire', 'bankruptcy', 'delisted', 'halt', 'paper hands']
+            bullish: ['moon', 'rocket', 'bull', 'bullish', 'buy', 'calls', 'long', 'green', 'gains', 'pump', 'rally', 'breakout', 'squeeze', 'to the moon', 'diamond hands', 'hodl'],
+            bearish: ['crash', 'bear', 'bearish', 'put', 'puts', 'short', 'red', 'dump', 'sell', 'drop', 'tank', 'collapse', 'bubble', 'correction', 'drill', 'paper hands']
         };
 
-        // WSB terminology detection
-        const WSB_PATTERNS = {
-            dd: ['dd', 'due diligence', 'research', 'analysis', 'fundamentals', 'technicals', 'sec filing', 'earnings'],
-            yolo: ['yolo', 'all in', 'life savings', 'student loans', 'mortgage', 'margin', 'leverage'],
-            gains: ['gain', 'gains', 'profit', 'win', 'winner', 'green', '+', 'made money'],
-            losses: ['loss', 'lost', 'down', '-', 'red', 'expired', 'worthless'],
-            diamondHands: ['diamond hands', '💎🙌', 'hodl', 'holding', 'never selling'],
-            paperHands: ['paper hands', '🧻🙌', 'sold early', 'panic sold', 'weak hands']
-        };
+        let allDiscussions = [];
 
-        let allPosts = [];
-        let currentFilter = 'all';
-
-        // Detect post characteristics
-        function detectPostCharacteristics(text) {
-            const lowerText = text.toLowerCase();
-            const characteristics = {
-                types: [],
-                handType: null
-            };
-            
-            // Detect post types
-            for (const [type, keywords] of Object.entries(WSB_PATTERNS)) {
-                if (type === 'diamondHands' || type === 'paperHands') continue;
-                if (keywords.some(keyword => lowerText.includes(keyword))) {
-                    characteristics.types.push(type);
-                }
-            }
-            
-            // Detect hand type
-            if (WSB_PATTERNS.diamondHands.some(keyword => lowerText.includes(keyword))) {
-                characteristics.handType = 'diamond';
-            } else if (WSB_PATTERNS.paperHands.some(keyword => lowerText.includes(keyword))) {
-                characteristics.handType = 'paper';
-            }
-            
-            return characteristics;
-        }
-
-        // Analyze sentiment
         function analyzeSentiment(text) {
             const lowerText = text.toLowerCase();
-            
-            let bullishCount = 0;
-            let bearishCount = 0;
-            
+            let bullishScore = 0;
+            let bearishScore = 0;
+
             SENTIMENT_KEYWORDS.bullish.forEach(word => {
-                const regex = new RegExp(`\\b${word}\\b`, 'g');
-                const matches = lowerText.match(regex);
-                if (matches) bullishCount += matches.length;
+                const matches = (lowerText.match(new RegExp(`\\b${word}\\b`, 'g')) || []).length;
+                bullishScore += matches;
             });
-            
+
             SENTIMENT_KEYWORDS.bearish.forEach(word => {
-                const regex = new RegExp(`\\b${word}\\b`, 'g');
-                const matches = lowerText.match(regex);
-                if (matches) bearishCount += matches.length;
+                const matches = (lowerText.match(new RegExp(`\\b${word}\\b`, 'g')) || []).length;
+                bearishScore += matches;
             });
-            
-            // Rocket emoji counts as bullish
-            const rocketCount = (text.match(/🚀/g) || []).length;
-            bullishCount += rocketCount * 2;
-            
-            if (bullishCount > bearishCount * 1.5) {
-                return { sentiment: 'bullish', emoji: '🐂', text: 'Bullish' };
-            } else if (bearishCount > bullishCount * 1.5) {
-                return { sentiment: 'bearish', emoji: '🐻', text: 'Bearish' };
-            } else {
-                return { sentiment: 'neutral', emoji: '⚖️', text: 'Neutral' };
+
+            // Boost for rocket emojis
+            bullishScore += (text.match(/🚀/g) || []).length * 2;
+
+            if (bullishScore > bearishScore * 1.2) {
+                return 'bullish';
+            } else if (bearishScore > bullishScore * 1.2) {
+                return 'bearish';
             }
+            return 'neutral';
         }
 
-        // Fetch posts from subreddit
+        function getTimeAgo(timestamp) {
+            const now = Date.now();
+            const diff = Math.floor((now - timestamp) / 1000);
+            
+            if (diff < 60) return `${diff}s`;
+            if (diff < 3600) return `${Math.floor(diff / 60)}m`;
+            if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
+            return `${Math.floor(diff / 86400)}d`;
+        }
+
+        function formatNumber(num) {
+            if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+            if (num >= 1000) return `${(num / 1000).toFixed(1)}k`;
+            return num.toString();
+        }
+
         async function fetchSubreddit(subreddit, limit = 10) {
             try {
                 const response = await fetch(`https://www.reddit.com/r/${subreddit}/hot.json?limit=${limit}`);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+                if (!response.ok) throw new Error(`Failed to fetch r/${subreddit}`);
                 
                 const data = await response.json();
-                
                 return data.data.children.map(post => {
                     const postData = post.data;
                     const fullText = `${postData.title} ${postData.selftext || ''}`;
-                    const sentimentData = analyzeSentiment(fullText);
-                    const characteristics = detectPostCharacteristics(fullText);
+                    const sentiment = analyzeSentiment(fullText);
                     
                     return {
                         title: postData.title,
-                        url: postData.url.startsWith('/') ? `https://reddit.com${postData.url}` : postData.url,
-                        redditUrl: `https://reddit.com${postData.permalink}`,
+                        url: `https://reddit.com${postData.permalink}`,
                         source: `r/${subreddit}`,
-                        publishedAt: new Date(postData.created_utc * 1000).toISOString(),
-                        description: postData.selftext || postData.title,
+                        publishedAt: postData.created_utc * 1000,
+                        description: postData.selftext || '',
                         score: postData.score,
                         comments: postData.num_comments,
-                        ratio: Math.round(postData.upvote_ratio * 100),
                         author: postData.author,
-                        subreddit: subreddit,
-                        sentiment: sentimentData,
-                        characteristics: characteristics,
-                        rocketCount: (fullText.match(/🚀/g) || []).length
+                        sentiment
                     };
                 });
             } catch (error) {
                 console.error(`Error fetching r/${subreddit}:`, error);
-               return [];
-           }
-       }
+                return [];
+            }
+        }
 
-       // Fetch all subreddits
-       async function fetchAllStockSubreddits() {
-           const subredditData = {};
-           
-           for (const subreddit of STOCK_SUBREDDITS) {
-               console.log(`Fetching r/${subreddit.name}...`);
-               const posts = await fetchSubreddit(subreddit.name, 10);
-               
-               // Sort by engagement (weighted score)
-               const sortedPosts = posts.sort((a, b) => {
-                   const engagementA = a.score + (a.comments * 5);
-                   const engagementB = b.score + (b.comments * 5);
-                   return engagementB - engagementA;
-               });
-               
-               subredditData[subreddit.name] = {
-                   info: subreddit,
-                   posts: sortedPosts.slice(0, 8)
-               };
-           }
-           
-           return subredditData;
-       }
+        async function fetchAllDiscussions() {
+            const allPosts = [];
+            
+            for (const subreddit of SUBREDDITS) {
+                const posts = await fetchSubreddit(subreddit, 8);
+                allPosts.push(...posts);
+            }
+            
+            // Sort by engagement and recency
+            return allPosts
+                .filter(post => post.score > 50) // Filter low-quality posts
+                .sort((a, b) => {
+                    const engagementA = a.score + (a.comments * 3);
+                    const engagementB = b.score + (b.comments * 3);
+                    return engagementB - engagementA;
+                })
+                .slice(0, 20); // Top 20 discussions
+        }
 
-       // Update statistics
-       function updateStats(posts) {
-           let hottestScore = 0;
-           let bullishCount = 0;
-           let bearishCount = 0;
-           let totalComments = 0;
-           let totalRockets = 0;
+        function updateSentimentIndicator(discussions) {
+            const sentiments = discussions.map(d => d.sentiment);
+            const bullishCount = sentiments.filter(s => s === 'bullish').length;
+            const bearishCount = sentiments.filter(s => s === 'bearish').length;
+            const total = discussions.length;
+            
+            const bullishPercent = Math.round((bullishCount / total) * 100);
+            
+            const dot = document.getElementById('sentiment-dot');
+            const text = document.getElementById('sentiment-text');
+            
+            if (bullishPercent > 60) {
+                dot.className = 'sentiment-dot bullish';
+                text.textContent = `${bullishPercent}% Bullish`;
+            } else if (bullishPercent < 40) {
+                dot.className = 'sentiment-dot bearish';
+                text.textContent = `${bullishPercent}% Bullish`;
+            } else {
+                dot.className = 'sentiment-dot neutral';
+                text.textContent = `${bullishPercent}% Mixed`;
+            }
+        }
 
-           posts.forEach(post => {
-               if (post.score > hottestScore) {
-                   hottestScore = post.score;
-               }
-               if (post.sentiment.sentiment === 'bullish') bullishCount++;
-               if (post.sentiment.sentiment === 'bearish') bearishCount++;
-               totalComments += post.comments;
-               totalRockets += post.rocketCount;
-           });
+        function createDiscussionCard(discussion) {
+            const timeAgo = getTimeAgo(discussion.publishedAt);
+            const excerpt = discussion.description.slice(0, 200) + (discussion.description.length > 200 ? '...' : '');
+            
+            return `
+                <article class="discussion">
+                    <div class="discussion-header">
+                        <div class="sentiment-badge ${discussion.sentiment}">
+                            ${discussion.sentiment}
+                        </div>
+                    </div>
+                    
+                    <a href="${discussion.url}" target="_blank" class="discussion-title">
+                        ${discussion.title}
+                    </a>
+                    
+                    ${excerpt ? `<p class="discussion-excerpt">${excerpt}</p>` : ''}
+                    
+                    <div class="discussion-meta">
+                        <div class="discussion-stats">
+                            <div class="stat">↑ ${formatNumber(discussion.score)}</div>
+                            <div class="stat">💬 ${formatNumber(discussion.comments)}</div>
+                        </div>
+                        <div>
+                            <span class="discussion-source">${discussion.source}</span>
+                            <span> • ${timeAgo}</span>
+                        </div>
+                    </div>
+                </article>
+            `;
+        }
 
-           document.getElementById('hottest-score').textContent = formatNumber(hottestScore) + ' upvotes';
-           
-           // Calculate sentiment
-           const total = bullishCount + bearishCount;
-           const bullishPercent = total > 0 ? Math.round((bullishCount / total) * 100) : 50;
-           const sentimentText = `${bullishPercent}% Bullish`;
-           const sentimentElement = document.getElementById('sentiment-ratio');
-           sentimentElement.textContent = sentimentText;
-           sentimentElement.className = bullishPercent > 60 ? 'stat-value bullish' : bullishPercent < 40 ? 'stat-value bearish' : 'stat-value';
-           
-           document.getElementById('total-comments').textContent = formatNumber(totalComments);
-           document.getElementById('rocket-count').textContent = totalRockets;
-       }
-       
-       // Format time ago
-       function getTimeAgo(dateString) {
-           const now = new Date();
-           const published = new Date(dateString);
-           const diffInSeconds = Math.floor((now - published) / 1000);
-           
-           if (diffInSeconds < 60) return `${diffInSeconds}s ago`;
-           const diffInMinutes = Math.floor(diffInSeconds / 60);
-           if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-           const diffInHours = Math.floor(diffInMinutes / 60);
-           if (diffInHours < 24) return `${diffInHours}h ago`;
-           const diffInDays = Math.floor(diffInHours / 24);
-           if (diffInDays < 30) return `${diffInDays}d ago`;
-           const diffInMonths = Math.floor(diffInDays / 30);
-           if (diffInMonths < 12) return `${diffInMonths}mo ago`;
-           return `${Math.floor(diffInMonths / 12)}y ago`;
-       }
+        function displayDiscussions(discussions) {
+            const container = document.getElementById('discussions');
+            container.innerHTML = discussions.map(createDiscussionCard).join('');
+            updateSentimentIndicator(discussions);
+        }
 
-       // Format large numbers
-       function formatNumber(num) {
-           if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-           if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
-           return num.toString();
-       }
+        function showError(message) {
+            const errorContainer = document.getElementById('error');
+            errorContainer.innerHTML = `
+                <div class="error">
+                    <h3>Unable to load discussions</h3>
+                    <p>${message}</p>
+                </div>
+            `;
+            errorContainer.style.display = 'block';
+        }
 
-       // Truncate text
-       function truncateText(text, wordLimit) {
-           if (!text) return '';
-           const words = text.split(/\s+/);
-           if (words.length <= wordLimit) return text;
-           return words.slice(0, wordLimit).join(' ') + '...';
-       }
-      
-       // Create stock card HTML
-       function createStockCard(post, subredditType) {
-           const timeAgo = getTimeAgo(post.publishedAt);
-           const snippet = truncateText(post.description, 50);
-           
-           // Card classes
-           let cardClasses = ['stock-card', post.sentiment.sentiment];
-           if (post.score > 5000 || post.comments > 500) {
-               cardClasses.push('high-engagement');
-           }
-           
-           // Create badges
-           let badges = '';
-           if (post.characteristics.types.includes('dd')) {
-               badges += '<span class="wsb-badge dd">DD</span>';
-           }
-           if (post.characteristics.types.includes('yolo')) {
-               badges += '<span class="wsb-badge yolo">YOLO</span>';
-           }
-           if (post.characteristics.types.includes('gains')) {
-               badges += '<span class="wsb-badge gains">GAINS</span>';
-           }
-           if (post.characteristics.types.includes('losses')) {
-               badges += '<span class="wsb-badge losses">LOSSES</span>';
-           }
-           
-           // Hand indicator
-           let handIndicator = '';
-           if (post.characteristics.handType === 'diamond') {
-               handIndicator = '<span class="hand-indicator" title="Diamond Hands">💎🙌</span>';
-           } else if (post.characteristics.handType === 'paper') {
-               handIndicator = '<span class="hand-indicator" title="Paper Hands">🧻🙌</span>';
-           }
-           
-           return `
-               <div class="${cardClasses.join(' ')}" 
-                   data-sentiment="${post.sentiment.sentiment}"
-                   data-score="${post.score}"
-                   data-types="${post.characteristics.types.join(',')}">
-                   ${handIndicator}
-                   <a href="${post.redditUrl}" target="_blank" rel="noopener noreferrer" 
-                       class="stock-title">
-                       ${post.title}
-                   </a>
-                   
-                   <div class="stock-type ${subredditType}">r/${post.subreddit}</div>
-                   ${badges}
-                   
-                   <div class="sentiment-indicator ${post.sentiment.sentiment}">
-                       <span class="sentiment-emoji">${post.sentiment.emoji}</span>
-                       <span class="sentiment-text">${post.sentiment.text}</span>
-                   </div>
-                   
-                   <p class="stock-snippet">
-                       ${snippet}
-                   </p>
-                   
-                   <div class="stock-metrics">
-                       <div class="stock-metric">
-                           <span class="stock-metric-icon">⬆️</span>
-                           <span>${formatNumber(post.score)}</span>
-                       </div>
-                       <div class="stock-metric">
-                           <span class="stock-metric-icon">💬</span>
-                           <span>${formatNumber(post.comments)}</span>
-                       </div>
-                       <div class="stock-metric">
-                           <span class="stock-metric-icon">📊</span>
-                           <span>${post.ratio}%</span>
-                       </div>
-                       <div class="stock-metric">
-                           <span class="stock-metric-icon">🚀</span>
-                           <span>${post.rocketCount}</span>
-                       </div>
-                   </div>
-                   
-                   <div class="stock-meta">
-                       <span class="stock-source">u/${post.author}</span>
-                       <time class="timestamp">${timeAgo}</time>
-                   </div>
-               </div>
-           `;
-       }
-      
-       // Display posts
-       function displayPosts(subredditData) {
-           const container = document.getElementById('news-content');
-           let html = '';
-           allPosts = [];
-           
-           for (const subredditInfo of STOCK_SUBREDDITS) {
-               const data = subredditData[subredditInfo.name];
-               if (data && data.posts.length > 0) {
-                   allPosts = allPosts.concat(data.posts);
-                   
-                   html += `
-                       <section class="subreddit-section">
-                           <h2 class="subreddit-title">
-                               r/${data.info.name}
-                               <span class="member-count">${data.info.members} members</span>
-                           </h2>
-                           <p class="subreddit-description">${data.info.description}</p>
-                           <div class="news-grid">
-                               ${data.posts.map(post => createStockCard(post, data.info.type)).join('')}
-                           </div>
-                       </section>
-                   `;
-               }
-           }
-           
-           container.innerHTML = html;
-           updateStats(allPosts);
-           applyFilter(currentFilter);
-       }
+        async function loadDiscussions() {
+            const loading = document.getElementById('loading');
+            const discussions = document.getElementById('discussions');
+            const error = document.getElementById('error');
+            
+            loading.style.display = 'flex';
+            discussions.style.display = 'none';
+            error.style.display = 'none';
+            
+            try {
+                const data = await fetchAllDiscussions();
+                allDiscussions = data;
+                
+                displayDiscussions(data);
+                
+                loading.style.display = 'none';
+                discussions.style.display = 'block';
+                
+            } catch (err) {
+                console.error('Error loading discussions:', err);
+                loading.style.display = 'none';
+                showError('Failed to load market discussions. Please try again.');
+            }
+        }
 
-       // Filter posts
-       function filterPosts(filter) {
-           currentFilter = filter;
-           
-           // Update active button
-           document.querySelectorAll('.filter-btn').forEach(btn => {
-               btn.classList.remove('active');
-           });
-           event.target.classList.add('active');
-           
-           applyFilter(filter);
-       }
-
-       function applyFilter(filter) {
-           const cards = document.querySelectorAll('.stock-card');
-           
-           cards.forEach(card => {
-               let show = true;
-               
-               switch(filter) {
-                   case 'bullish':
-                       show = card.dataset.sentiment === 'bullish';
-                       break;
-                   case 'bearish':
-                       show = card.dataset.sentiment === 'bearish';
-                       break;
-                   case 'hot':
-                       show = parseInt(card.dataset.score) > 1000;
-                       break;
-                   case 'dd':
-                       show = card.dataset.types.includes('dd');
-                       break;
-                   case 'yolo':
-                       show = card.dataset.types.includes('yolo');
-                       break;
-               }
-               
-               card.style.display = show ? 'flex' : 'none';
-           });
-       }
-      
-       // Show error
-       function showError(message) {
-           const errorContainer = document.getElementById('error-content');
-           errorContainer.innerHTML = `
-               <div class="error">
-                   <h3>Unable to load discussions</h3>
-                   <p>${message || 'Failed to fetch data from Reddit. Please try again later.'}</p>
-                   <p>Check your internet connection or Reddit may be experiencing issues.</p>
-               </div>
-           `;
-           errorContainer.style.display = 'block';
-       }
-      
-       // Load posts
-       async function loadPosts() {
-           const loading = document.getElementById('loading');
-           const content = document.getElementById('news-content');
-           const errorContent = document.getElementById('error-content');
-           
-           loading.style.display = 'flex';
-           content.style.display = 'none';
-           errorContent.style.display = 'none';
-           
-           try {
-               console.log('Fetching stock discussions...');
-               
-               const subredditData = await fetchAllStockSubreddits();
-               
-               console.log('Successfully loaded discussions');
-               
-               displayPosts(subredditData);
-               
-               loading.style.display = 'none';
-               content.style.display = 'block';
-               
-           } catch (error) {
-               console.error('Error loading posts:', error);
-               loading.style.display = 'none';
-               showError(error.message);
-           }
-       }
-      
-       // Initialize
-       document.addEventListener('DOMContentLoaded', () => {
-           loadPosts();
-           
-           // Auto-refresh every 5 minutes
-           setInterval(loadPosts, 300000);
-       });
-
-       // Keyboard shortcuts
-       document.addEventListener('keydown', (e) => {
-           if (e.key === 'r' || e.key === 'R') {
-               loadPosts();
-           }
-       });
-   </script>
+        // Initialize
+        document.addEventListener('DOMContentLoaded', loadDiscussions);
+        
+        // Auto-refresh every 5 minutes
+        setInterval(loadDiscussions, 300000);
+        
+        // Keyboard shortcut
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'r' && !e.ctrlKey && !e.metaKey) {
+                loadDiscussions();
+            }
+        });
+    </script>
 </body>
 </html>
