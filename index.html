@@ -1,565 +1,244 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Side Projects</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Side Projects</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: -apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;
+      background:#f5f5f5; color:#333; line-height:1.7;
+    }
+    .header {
+      background:#fff; border-bottom:1px solid #e0e0e0;
+      padding:20px; position:sticky; top:0; z-index:100;
+    }
+    .header-content {
+      max-width:1200px; margin:0 auto;
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    .logo { font-size:1.5em; font-weight:600; letter-spacing:-0.02em; }
+    .nav { display:flex; gap:24px; }
+    .nav-item { color:#666; text-decoration:none; font-size:0.95em; transition:color .2s; }
+    .nav-item:hover { color:#000; }
+    .container { max-width:1200px; margin:40px auto; padding:0 20px; }
+    .filter-section { margin-bottom:40px; }
+    .filter-pills { display:flex; gap:12px; flex-wrap:wrap; }
+    .filter-pill {
+      padding:8px 20px; background:#fff; border:1px solid #e0e0e0;
+      color:#666; cursor:pointer; font-size:0.9em; border-radius:20px; transition:all .2s;
+    }
+    .filter-pill:hover { border-color:#333; color:#000; }
+    .filter-pill.active { background:#000; color:#fff; border-color:#000; }
+    .feed { column-count:3; column-gap:24px; }
+    @media(max-width:1024px){ .feed{column-count:2;} }
+    @media(max-width:768px){ .feed{column-count:1;} }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-            background: #f5f5f5;
-            color: #333;
-            line-height: 1.7;
-            padding: 0;
-        }
-
-        .header {
-            background: #fff;
-            border-bottom: 1px solid #e0e0e0;
-            padding: 20px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 1.5em;
-            font-weight: 600;
-            color: #000;
-            letter-spacing: -0.02em;
-        }
-
-        .nav {
-            display: flex;
-            gap: 24px;
-        }
-
-        .nav-item {
-            color: #666;
-            text-decoration: none;
-            font-size: 0.95em;
-            transition: color 0.2s;
-        }
-
-        .nav-item:hover {
-            color: #000;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
-        .filter-section {
-            margin-bottom: 40px;
-        }
-
-        .filter-pills {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .filter-pill {
-            padding: 8px 20px;
-            background: #fff;
-            border: 1px solid #e0e0e0;
-            color: #666;
-            cursor: pointer;
-            font-size: 0.9em;
-            transition: all 0.2s;
-            border-radius: 20px;
-        }
-
-        .filter-pill:hover {
-            border-color: #333;
-            color: #000;
-        }
-
-        .filter-pill.active {
-            background: #000;
-            color: #fff;
-            border-color: #000;
-        }
-
-        .feed {
-            column-count: 3;
-            column-gap: 24px;
-        }
-
-        @media (max-width: 1024px) {
-            .feed {
-                column-count: 2;
-            }
-        }
-
-        .card {
-            background: #fff;
-            padding: 32px;
-            border: 1px solid #e0e0e0;
-            transition: all 0.3s ease;
-            position: relative;
-            break-inside: avoid;
-            margin-bottom: 24px;
-        }
-
-        .card:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            transform: translateY(-2px);
-        }
-
-        .card-date {
-            font-size: 0.8em;
-            color: #999;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 16px;
-        }
-
-        .card-title {
-            font-size: 1.3em;
-            font-weight: 600;
-            line-height: 1.4;
-            margin-bottom: 16px;
-            letter-spacing: -0.02em;
-        }
-
-        .card-title a {
-            color: #000;
-            text-decoration: none;
-            transition: opacity 0.2s;
-        }
-
-        .card-title a:hover {
-            opacity: 0.6;
-        }
-
-        .card-highlight {
-            background: #ffeb3b;
-            padding: 2px 6px;
-            margin: 0 -2px;
-        }
-
-        .card-excerpt {
-            font-size: 0.95em;
-            color: #666;
-            line-height: 1.7;
-            margin-bottom: 20px;
-        }
-
-        .comments-section {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #f0f0f0;
-        }
-
-        .comments-header {
-            font-size: 0.8em;
-            color: #999;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 12px;
-        }
-
-        .comment {
-            margin-bottom: 16px;
-            padding: 12px;
-            background: #fafafa;
-            border-left: 2px solid #e0e0e0;
-        }
-
-        .comment:last-child {
-            margin-bottom: 0;
-        }
-
-        .comment-author {
-            font-size: 0.8em;
-            color: #666;
-            margin-bottom: 6px;
-            font-weight: 500;
-        }
-
-        .comment-text {
-            font-size: 0.85em;
-            color: #555;
-            line-height: 1.6;
-        }
-
-        .card-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 16px;
-            border-top: 1px solid #f0f0f0;
-        }
-
-        .card-source {
-            font-size: 0.85em;
-            color: #999;
-        }
-
-        .card-link {
-            font-size: 0.85em;
-            color: #000;
-            text-decoration: none;
-            font-weight: 500;
-            transition: opacity 0.2s;
-        }
-
-        .card-link:hover {
-            opacity: 0.6;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 60px 20px;
-            color: #999;
-        }
-
-        .loading-dots {
-            display: inline-block;
-        }
-
-        .loading-dots span {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background: #ddd;
-            border-radius: 50%;
-            margin: 0 4px;
-            animation: bounce 1.4s infinite ease-in-out both;
-        }
-
-        .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
-        .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
-
-        @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1); }
-        }
-
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                gap: 16px;
-            }
-
-            .nav {
-                gap: 16px;
-            }
-
-            .feed {
-                column-count: 1;
-            }
-
-            .card {
-                padding: 24px;
-            }
-        }
-
-        /* Highlight variations */
-        .highlight-yellow { background: #ffeb3b; }
-        .highlight-pink { background: #ffcdd2; }
-        .highlight-blue { background: #bbdefb; }
-        .highlight-green { background: #c8e6c9; }
-    </style>
+    .card {
+      background:#fff; padding:32px; border:1px solid #e0e0e0;
+      transition:all .3s ease; break-inside:avoid; margin-bottom:24px;
+    }
+    .card:hover { box-shadow:0 4px 12px rgba(0,0,0,.08); transform:translateY(-2px); }
+    .card-date {
+      font-size:0.8em; color:#999; text-transform:uppercase;
+      letter-spacing:0.05em; margin-bottom:16px;
+    }
+    .card-title { font-size:1.3em; font-weight:600; line-height:1.4; margin-bottom:16px; }
+    .card-title a { color:#000; text-decoration:none; transition:opacity .2s; }
+    .card-title a:hover { opacity:.6; }
+    .card-highlight { padding:2px 6px; margin:0 -2px; border-radius:4px; }
+    .highlight-yellow{background:#ffeb3b;}
+    .highlight-pink{background:#ffcdd2;}
+    .highlight-blue{background:#bbdefb;}
+    .highlight-green{background:#c8e6c9;}
+    .card-excerpt{font-size:.95em;color:#666;margin-bottom:20px;}
+    .card-meta{
+      display:flex;justify-content:space-between;align-items:center;
+      padding-top:16px;border-top:1px solid #f0f0f0;
+    }
+    .card-source{font-size:.85em;color:#999;}
+    .card-link{font-size:.85em;color:#000;text-decoration:none;font-weight:500;}
+    .card-link:hover{opacity:.6;}
+    .loading{text-align:center;padding:60px 20px;color:#999;}
+    .loading-dots span{
+      display:inline-block;width:8px;height:8px;background:#ddd;border-radius:50%;
+      margin:0 4px;animation:bounce 1.4s infinite ease-in-out both;
+    }
+    .loading-dots span:nth-child(1){animation-delay:-.32s;}
+    .loading-dots span:nth-child(2){animation-delay:-.16s;}
+    @keyframes bounce{0%,80%,100%{transform:scale(0);}40%{transform:scale(1);}}
+  </style>
 </head>
 <body>
-    <div class="header">
-        <div class="header-content">
-            <div class="logo">Side Projects</div>
-            <div class="nav">
-                <a href="#" class="nav-item">All</a>
-                <a href="#" class="nav-item">Indie</a>
-                <a href="#" class="nav-item">Dev</a>
-                <a href="#" class="nav-item">Business</a>
-            </div>
-        </div>
+  <div class="header">
+    <div class="header-content">
+      <div class="logo">Side Projects</div>
+      <div class="nav">
+        <a href="#" class="nav-item">All</a>
+        <a href="#" class="nav-item">Indie</a>
+        <a href="#" class="nav-item">Dev</a>
+        <a href="#" class="nav-item">Business</a>
+      </div>
     </div>
+  </div>
 
-    <div class="container">
-        <div class="filter-section">
-            <div class="filter-pills" id="filterPills"></div>
-        </div>
-
-        <div id="loading" class="loading">
-            <div class="loading-dots">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-            <div style="margin-top: 16px;">Loading posts...</div>
-        </div>
-
-        <div class="feed" id="feed"></div>
+  <div class="container">
+    <div class="filter-section">
+      <div class="filter-pills" id="filterPills"></div>
     </div>
+    <div id="loading" class="loading">
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+      <div style="margin-top:16px;">Loading posts...</div>
+    </div>
+    <div class="feed" id="feed"></div>
+  </div>
 
-    <script>
-        const SOURCES = [
-            { id: 'all', name: 'All', cat: 'all' },
-            { id: 'SideProject', name: 'SideProject', cat: 'indie' },
-            { id: 'indiehackers', name: 'IndieHackers', cat: 'indie' },
-            { id: 'SaaS', name: 'SaaS', cat: 'business' },
-            { id: 'microsaas', name: 'MicroSaaS', cat: 'business' },
-            { id: 'Entrepreneur', name: 'Entrepreneur', cat: 'business' },
-            { id: 'sidehustle', name: 'SideHustle', cat: 'indie' },
-            { id: 'webdev', name: 'WebDev', cat: 'dev' },
-            { id: 'nocode', name: 'NoCode', cat: 'dev' },
-            { id: 'indiebiz', name: 'IndieBiz', cat: 'indie' },
-            { id: 'startups', name: 'Startups', cat: 'business' },
-            { id: 'GrowMyBusiness', name: 'GrowMyBusiness', cat: 'business' },
-            { id: 'smallbusiness', name: 'SmallBusiness', cat: 'business' },
-            { id: 'marketing', name: 'Marketing', cat: 'business' },
-            { id: 'ProductManagement', name: 'Product', cat: 'business' },
-            { id: 'learnprogramming', name: 'LearnProgramming', cat: 'dev' },
-            { id: 'userexperience', name: 'UX', cat: 'design' },
-            { id: 'alphaandbetausers', name: 'Alpha/Beta', cat: 'indie' },
-            { id: 'roastmystartup', name: 'RoastMyStartup', cat: 'indie' },
-            { id: 'ExperiencedDevs', name: 'ExperiencedDevs', cat: 'dev' },
-            { id: 'Futurology', name: 'Futurology', cat: 'design' }
-        ];
+  <script>
+    const SOURCES = [
+      { id:'all', name:'All', cat:'all' },
+      { id:'SideProject', name:'SideProject', cat:'indie' },
+      { id:'indiehackers', name:'IndieHackers', cat:'indie' },
+      { id:'SaaS', name:'SaaS', cat:'business' },
+      { id:'microSaaS', name:'MicroSaaS', cat:'business' },
+      { id:'entrepreneur', name:'Entrepreneur', cat:'business' },
+      { id:'sidehustle', name:'SideHustle', cat:'indie' },
+      { id:'webdev', name:'WebDev', cat:'dev' }
+    ];
 
-        const PROXY = 'https://corsproxy.io/?';
-        let posts = [];
-        let filter = 'all';
+    const highlights = ['yellow','pink','blue','green'];
+    let posts = [];
+    let filter = 'all';
+    const CACHE_TTL = 10 * 60 * 1000; // 10 min
+    const MAX_POSTS = 10; // per subreddit
 
-        const highlights = ['yellow', 'pink', 'blue', 'green'];
+    init();
 
-        function init() {
-            renderFilter();
-            fetchPosts();
-            setInterval(fetchPosts, 60000);
+    function init(){
+      renderFilter();
+      const cached = getCachedPosts();
+      if(cached){ posts = cached; render(); }
+      fetchPosts();
+      setInterval(fetchPosts, 300000); // 5 min refresh
+    }
+
+    function getCachedPosts(){
+      try{
+        const cache = JSON.parse(localStorage.getItem('postsCache'));
+        const ts = parseInt(localStorage.getItem('postsCacheTime'),10);
+        if(cache && ts && (Date.now()-ts) < CACHE_TTL) return cache;
+      }catch{}
+      return null;
+    }
+
+    function cachePosts(data){
+      localStorage.setItem('postsCache', JSON.stringify(data));
+      localStorage.setItem('postsCacheTime', Date.now());
+    }
+
+    function renderFilter(){
+      const container=document.getElementById('filterPills');
+      SOURCES.forEach(src=>{
+        const pill=document.createElement('button');
+        pill.className='filter-pill'+(src.id==='all'?' active':'');
+        pill.textContent=src.name;
+        pill.onclick=()=>setFilter(src.id);
+        container.appendChild(pill);
+      });
+    }
+
+    function setFilter(id){
+      filter=id;
+      document.querySelectorAll('.filter-pill').forEach((pill,i)=>{
+        pill.classList.toggle('active', SOURCES[i].id===id);
+      });
+      render();
+    }
+
+    async function fetchPosts(){
+      try{
+        const subs=SOURCES.slice(1);
+        const results=[];
+        for(const src of subs){
+          const subPosts=await fetchSubreddit(src.id,src.cat);
+          results.push(...subPosts);
+          renderPartial(results.slice(0,15)); // show partial results early
         }
+        posts=results.sort((a,b)=>b.date - a.date).slice(0,50);
+        cachePosts(posts);
+        render();
+      }catch(err){console.error('Fetch error:',err);}
+    }
 
-        function renderFilter() {
-            const container = document.getElementById('filterPills');
-            SOURCES.forEach(src => {
-                const pill = document.createElement('button');
-                pill.className = 'filter-pill' + (src.id === 'all' ? ' active' : '');
-                pill.textContent = src.name;
-                pill.onclick = () => setFilter(src.id);
-                container.appendChild(pill);
-            });
-        }
+    async function fetchSubreddit(name,category){
+      const url=`https://www.reddit.com/r/${name}/.rss`;
+      const res=await fetch(url);
+      if(!res.ok) return [];
+      const text=await res.text();
+      const xml=new DOMParser().parseFromString(text,'text/xml');
+      const items=xml.querySelectorAll('entry');
+      return Array.from(items).slice(0,MAX_POSTS).map(item=>({
+        title:item.querySelector('title')?.textContent||'',
+        link:item.querySelector('link')?.getAttribute('href')||'#',
+        author:item.querySelector('author name')?.textContent||'Unknown',
+        date:new Date(item.querySelector('published')?.textContent),
+        content:clean(item.querySelector('content')?.textContent||''),
+        sub:name, category:category
+      }));
+    }
 
-        function setFilter(id) {
-            filter = id;
-            document.querySelectorAll('.filter-pill').forEach((pill, i) => {
-                pill.classList.toggle('active', SOURCES[i].id === id);
-            });
-            render();
-        }
+    function clean(html){
+      const div=document.createElement('div');
+      div.innerHTML=html;
+      return (div.textContent||'').replace(/https?:\/\/[^\s]+/g,'').replace(/\s+/g,' ').trim().substring(0,180);
+    }
 
-        async function fetchPosts() {
-            try {
-                const subs = SOURCES.slice(1);
-                const results = await Promise.all(
-                    subs.map(src => fetchSubreddit(src.id, src.cat))
-                );
-                
-                posts = results
-                    .flat()
-                    .sort((a, b) => b.date - a.date)
-                    .slice(0, 50); // Reduced to 50 since we're fetching comments
-                
-                // Fetch comments for each post
-                await fetchCommentsForPosts();
-                
-                render();
-            } catch (err) {
-                console.error('Fetch error:', err);
-            }
-        }
+    function highlightTitle(title){
+      const words=title.split(' ');
+      if(words.length>5){
+        const randomIndex=Math.floor(Math.random()*(words.length-3))+1;
+        const phrase=words.slice(randomIndex,randomIndex+3).join(' ');
+        const color=highlights[Math.floor(Math.random()*highlights.length)];
+        return title.replace(phrase,`<span class="card-highlight highlight-${color}">${phrase}</span>`);
+      }
+      return title;
+    }
 
-        async function fetchSubreddit(name, category) {
-            const url = `${PROXY}https://www.reddit.com/r/${name}/.rss`;
-            try {
-                const res = await fetch(url);
-                if (!res.ok) return [];
-                const text = await res.text();
-                const xml = new DOMParser().parseFromString(text, 'text/xml');
-                const items = xml.querySelectorAll('entry');
-                
-                return Array.from(items).map(item => {
-                    const link = item.querySelector('link')?.getAttribute('href') || '#';
-                    const postId = extractPostId(link);
-                    
-                    return {
-                        title: item.querySelector('title')?.textContent || '',
-                        link: link,
-                        postId: postId,
-                        author: item.querySelector('author name')?.textContent || 'Unknown',
-                        date: new Date(item.querySelector('published')?.textContent),
-                        content: clean(item.querySelector('content')?.textContent || ''),
-                        sub: name,
-                        category: category,
-                        comments: []
-                    };
-                });
-            } catch (err) {
-                console.error(`Error fetching r/${name}:`, err);
-                return [];
-            }
-        }
+    function formatDate(date){
+      const opts={year:'numeric',month:'long',day:'numeric'};
+      return date.toLocaleDateString('en-US',opts).toUpperCase();
+    }
 
-        function extractPostId(url) {
-            // Extract post ID from Reddit URL
-            const match = url.match(/\/comments\/([a-z0-9]+)\//);
-            return match ? match[1] : null;
-        }
+    function renderPartial(tempPosts){
+      const feed=document.getElementById('feed');
+      feed.innerHTML=tempPosts.map(buildCard).join('');
+    }
 
-        async function fetchCommentsForPosts() {
-            // Fetch comments for each post in batches to avoid overwhelming the API
-            const batchSize = 5;
-            for (let i = 0; i < posts.length; i += batchSize) {
-                const batch = posts.slice(i, i + batchSize);
-                await Promise.all(batch.map(post => fetchComments(post)));
-                // Small delay between batches
-                await new Promise(resolve => setTimeout(resolve, 500));
-            }
-        }
+    function render(){
+      document.getElementById('loading').style.display='none';
+      const feed=document.getElementById('feed');
+      const filtered=filter==='all'?posts:posts.filter(p=>p.sub===filter);
+      feed.innerHTML=filtered.map(buildCard).join('');
+    }
 
-        async function fetchComments(post) {
-            if (!post.postId) return;
-            
-            try {
-                const url = `${PROXY}https://www.reddit.com/r/${post.sub}/comments/${post.postId}.json`;
-                const res = await fetch(url);
-                if (!res.ok) return;
-                
-                const data = await res.json();
-                
-                // Comments are in the second element of the response array
-                if (data && data[1] && data[1].data && data[1].data.children) {
-                    const commentData = data[1].data.children
-                        .filter(child => {
-                            // Filter out non-comments, AutoModerator, and deleted users
-                            return child.kind === 't1' && 
-                                   child.data.body && 
-                                   child.data.author !== 'AutoModerator' &&
-                                   child.data.author !== '[deleted]';
-                        })
-                        .slice(0, 3) // Top 3 comments (after filtering)
-                        .map(child => ({
-                            author: child.data.author,
-                            text: child.data.body,
-                            score: child.data.score
-                        }));
-                    
-                    post.comments = commentData;
-                }
-            } catch (err) {
-                console.error(`Error fetching comments for ${post.postId}:`, err);
-            }
-        }
+    function buildCard(post){
+      return `
+      <article class="card">
+        <div class="card-date">${formatDate(post.date)}</div>
+        <h2 class="card-title"><a href="${post.link}" target="_blank">${highlightTitle(escapeHTML(post.title))}</a></h2>
+        ${post.content?`<p class="card-excerpt">${escapeHTML(post.content)}</p>`:''}
+        <div class="card-meta">
+          <span class="card-source">r/${post.sub}</span>
+          <a href="${post.link}" target="_blank" class="card-link">Read →</a>
+        </div>
+      </article>`;
+    }
 
-        function clean(html) {
-            const div = document.createElement('div');
-            div.innerHTML = html;
-            let text = (div.textContent || '')
-                .replace(/submitted by.*/g, '')
-                .replace(/\[link\]/g, '')
-                .replace(/\[comments\]/g, '')
-                .trim();
-            
-            // Remove all URLs
-            text = text.replace(/https?:\/\/[^\s]+/g, '');
-            
-            // Remove extra whitespace
-            text = text.replace(/\s+/g, ' ').trim();
-            
-            return text.substring(0, 180);
-        }
-
-        function cleanCommentText(text) {
-            // Clean up comment text
-            return text
-                .replace(/https?:\/\/[^\s]+/g, '') // Remove URLs
-                .replace(/\s+/g, ' ') // Normalize whitespace
-                .trim()
-                .substring(0, 200); // Truncate
-        }
-
-        function formatDate(date) {
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            return date.toLocaleDateString('en-US', options).toUpperCase();
-        }
-
-        function highlightTitle(title) {
-            const words = title.split(' ');
-            if (words.length > 5) {
-                const randomIndex = Math.floor(Math.random() * (words.length - 3)) + 1;
-                const phrase = words.slice(randomIndex, randomIndex + 3).join(' ');
-                const highlight = highlights[Math.floor(Math.random() * highlights.length)];
-                return title.replace(phrase, `<span class="card-highlight highlight-${highlight}">${phrase}</span>`);
-            }
-            return title;
-        }
-
-        function renderComments(comments) {
-            if (!comments || comments.length === 0) return '';
-            
-            return `
-                <div class="comments-section">
-                    <div class="comments-header">Top Comments</div>
-                    ${comments.map(comment => `
-                        <div class="comment">
-                            <div class="comment-author">u/${escape(comment.author)}</div>
-                            <div class="comment-text">${escape(cleanCommentText(comment.text))}</div>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-        }
-
-        function render() {
-            const loading = document.getElementById('loading');
-            const feed = document.getElementById('feed');
-            
-            loading.style.display = 'none';
-            
-            const filtered = filter === 'all' 
-                ? posts 
-                : posts.filter(p => p.sub === filter);
-            
-            feed.innerHTML = filtered.map(post => `
-                <article class="card">
-                    <div class="card-date">${formatDate(post.date)}</div>
-                    <h2 class="card-title">
-                        <a href="${post.link}" target="_blank">${highlightTitle(escape(post.title))}</a>
-                    </h2>
-                    ${post.content ? `<p class="card-excerpt">${escape(post.content)}</p>` : ''}
-                    ${renderComments(post.comments)}
-                    <div class="card-meta">
-                        <span class="card-source">r/${post.sub}</span>
-                        <a href="${post.link}" target="_blank" class="card-link">Read →</a>
-                    </div>
-                </article>
-            `).join('');
-        }
-
-        function escape(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        init();
-    </script>
+    function escapeHTML(text){
+      const div=document.createElement('div');
+      div.textContent=text;
+      return div.innerHTML;
+    }
+  </script>
 </body>
 </html>
