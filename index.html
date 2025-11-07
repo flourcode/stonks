@@ -128,9 +128,18 @@
             font-size: 1.3em;
             font-weight: 600;
             line-height: 1.4;
-            color: #000;
             margin-bottom: 16px;
             letter-spacing: -0.02em;
+        }
+
+        .card-title a {
+            color: #000;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+        .card-title a:hover {
+            opacity: 0.6;
         }
 
         .card-highlight {
@@ -144,6 +153,44 @@
             color: #666;
             line-height: 1.7;
             margin-bottom: 20px;
+        }
+
+        .comments-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .comments-header {
+            font-size: 0.8em;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+        }
+
+        .comment {
+            margin-bottom: 16px;
+            padding: 12px;
+            background: #fafafa;
+            border-left: 2px solid #e0e0e0;
+        }
+
+        .comment:last-child {
+            margin-bottom: 0;
+        }
+
+        .comment-author {
+            font-size: 0.8em;
+            color: #666;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .comment-text {
+            font-size: 0.85em;
+            color: #555;
+            line-height: 1.6;
         }
 
         .card-meta {
@@ -321,7 +368,10 @@
                 posts = results
                     .flat()
                     .sort((a, b) => b.date - a.date)
-                    .slice(0, 100);
+                    .slice(0, 50); // Reduced to 50 since we're fetching comments
+                
+                // Fetch comments for each post
+                await fetchCommentsForPosts();
                 
                 render();
             } catch (err) {
@@ -338,18 +388,76 @@
                 const xml = new DOMParser().parseFromString(text, 'text/xml');
                 const items = xml.querySelectorAll('entry');
                 
-                return Array.from(items).map(item => ({
-                    title: item.querySelector('title')?.textContent || '',
-                    link: item.querySelector('link')?.getAttribute('href') || '#',
-                    author: item.querySelector('author name')?.textContent || 'Unknown',
-                    date: new Date(item.querySelector('published')?.textContent),
-                    content: clean(item.querySelector('content')?.textContent || ''),
-                    sub: name,
-                    category: category
-                }));
+                return Array.from(items).map(item => {
+                    const link = item.querySelector('link')?.getAttribute('href') || '#';
+                    const postId = extractPostId(link);
+                    
+                    return {
+                        title: item.querySelector('title')?.textContent || '',
+                        link: link,
+                        postId: postId,
+                        author: item.querySelector('author name')?.textContent || 'Unknown',
+                        date: new Date(item.querySelector('published')?.textContent),
+                        content: clean(item.querySelector('content')?.textContent || ''),
+                        sub: name,
+                        category: category,
+                        comments: []
+                    };
+                });
             } catch (err) {
                 console.error(`Error fetching r/${name}:`, err);
                 return [];
+            }
+        }
+
+        function extractPostId(url) {
+            // Extract post ID from Reddit URL
+            const match = url.match(/\/comments\/([a-z0-9]+)\//);
+            return match ? match[1] : null;
+        }
+
+        async function fetchCommentsForPosts() {
+            // Fetch comments for each post in batches to avoid overwhelming the API
+            const batchSize = 5;
+            for (let i = 0; i < posts.length; i += batchSize) {
+                const batch = posts.slice(i, i + batchSize);
+                await Promise.all(batch.map(post => fetchComments(post)));
+                // Small delay between batches
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+        }
+
+        async function fetchComments(post) {
+            if (!post.postId) return;
+            
+            try {
+                const url = `${PROXY}https://www.reddit.com/r/${post.sub}/comments/${post.postId}.json`;
+                const res = await fetch(url);
+                if (!res.ok) return;
+                
+                const data = await res.json();
+                
+                // Comments are in the second element of the response array
+                if (data && data[1] && data[1].data && data[1].data.children) {
+                    const commentData = data[1].data.children
+                        .filter(child => {
+                            // Filter out non-comments, AutoModerator, and deleted users
+                            return child.kind === 't1' && 
+                                   child.data.body && 
+                                   child.data.author !== 'AutoModerator' &&
+                                   child.data.author !== '[deleted]';
+                        })
+                        .slice(0, 3) // Top 3 comments (after filtering)
+                        .map(child => ({
+                            author: child.data.author,
+                            text: child.data.body,
+                            score: child.data.score
+                        }));
+                    
+                    post.comments = commentData;
+                }
+            } catch (err) {
+                console.error(`Error fetching comments for ${post.postId}:`, err);
             }
         }
 
@@ -362,14 +470,22 @@
                 .replace(/\[comments\]/g, '')
                 .trim();
             
-            // Remove all URLs (including preview.redd.it, i.redd.it, etc.)
+            // Remove all URLs
             text = text.replace(/https?:\/\/[^\s]+/g, '');
             
             // Remove extra whitespace
             text = text.replace(/\s+/g, ' ').trim();
             
-            // Truncate
             return text.substring(0, 180);
+        }
+
+        function cleanCommentText(text) {
+            // Clean up comment text
+            return text
+                .replace(/https?:\/\/[^\s]+/g, '') // Remove URLs
+                .replace(/\s+/g, ' ') // Normalize whitespace
+                .trim()
+                .substring(0, 200); // Truncate
         }
 
         function formatDate(date) {
@@ -378,7 +494,6 @@
         }
 
         function highlightTitle(title) {
-            // Add highlight to random words for visual interest
             const words = title.split(' ');
             if (words.length > 5) {
                 const randomIndex = Math.floor(Math.random() * (words.length - 3)) + 1;
@@ -387,6 +502,22 @@
                 return title.replace(phrase, `<span class="card-highlight highlight-${highlight}">${phrase}</span>`);
             }
             return title;
+        }
+
+        function renderComments(comments) {
+            if (!comments || comments.length === 0) return '';
+            
+            return `
+                <div class="comments-section">
+                    <div class="comments-header">Top Comments</div>
+                    ${comments.map(comment => `
+                        <div class="comment">
+                            <div class="comment-author">u/${escape(comment.author)}</div>
+                            <div class="comment-text">${escape(cleanCommentText(comment.text))}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
         }
 
         function render() {
@@ -402,8 +533,11 @@
             feed.innerHTML = filtered.map(post => `
                 <article class="card">
                     <div class="card-date">${formatDate(post.date)}</div>
-                    <h2 class="card-title">${highlightTitle(escape(post.title))}</h2>
+                    <h2 class="card-title">
+                        <a href="${post.link}" target="_blank">${highlightTitle(escape(post.title))}</a>
+                    </h2>
                     ${post.content ? `<p class="card-excerpt">${escape(post.content)}</p>` : ''}
+                    ${renderComments(post.comments)}
                     <div class="card-meta">
                         <span class="card-source">r/${post.sub}</span>
                         <a href="${post.link}" target="_blank" class="card-link">Read →</a>
