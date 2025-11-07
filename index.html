@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Trading Reddit Feed Wall</title>
+    <title>Stock Feed</title>
     <style>
         * {
             margin: 0;
@@ -12,186 +12,110 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            min-height: 100vh;
-            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            background: #000;
             color: #fff;
+            min-height: 100vh;
+            padding: 40px 20px;
+            -webkit-font-smoothing: antialiased;
         }
 
         .container {
-            max-width: 1600px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
-        .header {
-            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-            margin-bottom: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            opacity: 0;
+            animation: fadeInDown 0.8s ease forwards;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         h1 {
-            color: #00ff88;
-            font-size: 2.5em;
-            margin-bottom: 15px;
-            text-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+            font-size: 3em;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #fff 0%, #888 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
         }
 
         .subtitle {
-            color: #a0a0a0;
+            color: #888;
             font-size: 1.1em;
+            font-weight: 400;
+            letter-spacing: -0.01em;
         }
 
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .stat-number {
-            font-size: 2em;
-            font-weight: bold;
-            color: #00ff88;
-            text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
-        }
-
-        .stat-label {
-            color: #a0a0a0;
-            margin-top: 5px;
-        }
-
-        .subreddit-filter {
+        .filter {
             display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 48px;
             flex-wrap: wrap;
-            gap: 10px;
-            margin: 20px 0;
-            padding: 20px;
-            background: rgba(15, 52, 96, 0.5);
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .subreddit-btn {
-            padding: 10px 20px;
-            background: rgba(0, 255, 136, 0.1);
-            border: 2px solid #00ff88;
-            color: #00ff88;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-            font-size: 0.9em;
-        }
-
-        .subreddit-btn:hover {
-            background: #00ff88;
-            color: #1a1a2e;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 255, 136, 0.4);
-        }
-
-        .subreddit-btn.active {
-            background: #00ff88;
-            color: #1a1a2e;
-            box-shadow: 0 4px 12px rgba(0, 255, 136, 0.4);
-        }
-
-        .controls {
-            background: rgba(15, 52, 96, 0.5);
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            flex-wrap: wrap;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .btn {
-            padding: 12px 24px;
-            background: #00ff88;
-            color: #1a1a2e;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-            box-shadow: 0 2px 8px rgba(0, 255, 136, 0.3);
-        }
-
-        .btn:hover {
-            background: #00cc6f;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 255, 136, 0.5);
-        }
-
-        .btn-secondary {
-            background: #e53935;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #c62828;
-        }
-
-        .btn-secondary.paused {
-            background: #4caf50;
-        }
-
-        .btn-secondary.paused:hover {
-            background: #388e3c;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #00ff88;
-            font-size: 1.2em;
-        }
-
-        .error {
-            background: rgba(229, 57, 53, 0.2);
-            color: #ff6b6b;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-            border: 1px solid rgba(229, 57, 53, 0.5);
-        }
-
-        .feed-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .post-card {
-            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
-            animation: fadeIn 0.5s ease;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            position: relative;
-            overflow: hidden;
+            opacity: 0;
+            animation: fadeIn 1s ease 0.3s forwards;
         }
 
         @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .filter-btn {
+            padding: 10px 24px;
+            background: transparent;
+            border: 1px solid #333;
+            color: #888;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.95em;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+        }
+
+        .filter-btn:hover {
+            border-color: #666;
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .filter-btn.active {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
+        }
+
+        .feed {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 24px;
+        }
+
+        .post {
+            background: #111;
+            border-radius: 16px;
+            padding: 28px;
+            border: 1px solid #222;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        @keyframes fadeInUp {
             from {
                 opacity: 0;
                 transform: translateY(20px);
@@ -202,438 +126,283 @@
             }
         }
 
-        .post-card:hover {
-            box-shadow: 0 4px 16px rgba(0, 255, 136, 0.2);
-            transform: translateY(-5px);
-            border-color: rgba(0, 255, 136, 0.3);
+        .post:hover {
+            border-color: #333;
+            transform: translateY(-4px);
         }
 
-        .post-header {
+        .post-meta {
             display: flex;
             align-items: center;
-            margin-bottom: 15px;
+            gap: 12px;
+            margin-bottom: 16px;
         }
 
-        .subreddit-badge {
-            padding: 5px 12px;
-            background: rgba(0, 255, 136, 0.2);
-            border: 1px solid #00ff88;
-            border-radius: 20px;
-            color: #00ff88;
-            font-weight: 600;
+        .subreddit {
             font-size: 0.85em;
-            margin-right: 10px;
+            color: #666;
+            font-weight: 500;
+            letter-spacing: -0.01em;
         }
 
-        .post-time {
-            color: #a0a0a0;
+        .time {
             font-size: 0.85em;
+            color: #444;
             margin-left: auto;
         }
 
-        .post-author {
-            color: #a0a0a0;
-            font-size: 0.9em;
-            margin-bottom: 10px;
+        .title {
+            font-size: 1.15em;
+            font-weight: 600;
+            line-height: 1.5;
+            letter-spacing: -0.02em;
+            margin-bottom: 12px;
+            color: #fff;
         }
 
-        .post-title {
-            font-size: 1.2em;
+        .tickers {
+            display: flex;
+            gap: 8px;
+            margin: 16px 0;
+            flex-wrap: wrap;
+        }
+
+        .ticker {
+            font-size: 0.9em;
             font-weight: 600;
-            color: #fff;
-            margin-bottom: 12px;
-            line-height: 1.4;
+            color: #0a84ff;
+            font-family: 'SF Mono', 'Monaco', monospace;
+        }
+
+        .content {
+            font-size: 0.95em;
+            line-height: 1.6;
+            color: #888;
+            margin-bottom: 20px;
             display: -webkit-box;
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
 
-        .post-content {
-            color: #d0d0d0;
-            line-height: 1.6;
-            margin-bottom: 15px;
-            font-size: 0.95em;
-            display: -webkit-box;
-            -webkit-line-clamp: 4;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .post-link {
-            display: inline-block;
-            color: #00ff88;
+        .read-more {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #0a84ff;
             text-decoration: none;
-            font-weight: 600;
-            margin-top: 10px;
-            transition: color 0.2s;
+            font-size: 0.95em;
+            font-weight: 500;
+            transition: gap 0.3s ease;
         }
 
-        .post-link:hover {
-            color: #00cc6f;
-            text-decoration: underline;
+        .read-more:hover {
+            gap: 10px;
         }
 
-        .new-badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: #e53935;
-            color: white;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 0.75em;
-            font-weight: bold;
-            animation: pulse 2s infinite;
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+            font-size: 1.1em;
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #222;
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
         }
 
-        .last-update {
-            color: #a0a0a0;
-            margin-left: auto;
-            font-size: 0.9em;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         @media (max-width: 768px) {
-            .feed-grid {
-                grid-template-columns: 1fr;
+            body {
+                padding: 24px 16px;
             }
 
             h1 {
-                font-size: 1.8em;
+                font-size: 2em;
             }
 
-            .controls {
-                flex-direction: column;
-                align-items: stretch;
+            header {
+                margin-bottom: 40px;
             }
 
-            .btn {
-                width: 100%;
+            .feed {
+                grid-template-columns: 1fr;
+            }
+
+            .filter {
+                margin-bottom: 32px;
             }
         }
 
-        .ticker-symbol {
-            color: #ffd700;
-            font-weight: bold;
-        }
-
-        .info-box {
-            background: rgba(0, 255, 136, 0.1);
-            border: 1px solid rgba(0, 255, 136, 0.3);
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-
-        .info-box p {
-            margin: 5px 0;
-            color: #d0d0d0;
-        }
-
-        .cors-note {
-            background: rgba(255, 152, 0, 0.2);
-            border: 1px solid rgba(255, 152, 0, 0.5);
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            color: #ffb74d;
-        }
+        /* Delay animation for staggered effect */
+        .post:nth-child(1) { animation-delay: 0.05s; }
+        .post:nth-child(2) { animation-delay: 0.1s; }
+        .post:nth-child(3) { animation-delay: 0.15s; }
+        .post:nth-child(4) { animation-delay: 0.2s; }
+        .post:nth-child(5) { animation-delay: 0.25s; }
+        .post:nth-child(6) { animation-delay: 0.3s; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>📈 Stock Trading Reddit Feed Wall</h1>
-            <p class="subtitle">Live RSS feeds from r/stocks, r/wallstreetbets, r/pennystocks, r/smallstreetbets, r/10xpennystocks</p>
+        <header>
+            <h1>Stock Feed</h1>
+            <p class="subtitle">Real-time discussions from Reddit</p>
+        </header>
+
+        <div class="filter" id="filter"></div>
+
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+            Loading posts...
         </div>
 
-        <div class="cors-note">
-            <strong>⚠️ CORS Note:</strong> This page fetches real RSS feeds from Reddit. If you see CORS errors, you may need to:
-            <br>• Use a CORS proxy (like https://corsproxy.io/)
-            <br>• Run this through a local server
-            <br>• Use a browser extension to disable CORS for testing
-        </div>
-
-        <div class="stats">
-            <div class="stat-card">
-                <div class="stat-number" id="totalPosts">0</div>
-                <div class="stat-label">Total Posts</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="activeSubreddits">5</div>
-                <div class="stat-label">Active Subreddits</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="newPosts">0</div>
-                <div class="stat-label">New Posts (Last Refresh)</div>
-            </div>
-        </div>
-
-        <div class="subreddit-filter" id="subredditFilter">
-            <button class="subreddit-btn active" data-sub="all">All Subreddits</button>
-        </div>
-
-        <div class="controls">
-            <button class="btn" id="refreshBtn">🔄 Refresh Feed</button>
-            <button class="btn btn-secondary" id="pauseBtn">⏸ Pause Auto-Refresh</button>
-            <span class="last-update">Last updated: <strong id="lastUpdate">Loading...</strong></span>
-        </div>
-
-        <div id="loadingIndicator" class="loading">Loading posts from Reddit...</div>
-        <div id="errorContainer"></div>
-
-        <div class="feed-grid" id="feedGrid"></div>
+        <div class="feed" id="feed"></div>
     </div>
 
     <script>
-        // Subreddits configuration
-        const subreddits = [
-            { name: 'stocks', display: 'r/stocks' },
-            { name: 'wallstreetbets', display: 'r/wallstreetbets' },
-            { name: 'pennystocks', display: 'r/pennystocks' },
-            { name: 'smallstreetbets', display: 'r/smallstreetbets' },
-            { name: '10xpennystocks', display: 'r/10xpennystocks' }
+        const SUBREDDITS = [
+            { id: 'all', name: 'All' },
+            { id: 'stocks', name: 'Stocks' },
+            { id: 'wallstreetbets', name: 'WSB' },
+            { id: 'pennystocks', name: 'Penny' },
+            { id: 'smallstreetbets', name: 'Small' },
+            { id: '10xpennystocks', name: '10x' }
         ];
 
-        let allPosts = [];
-        let filteredPosts = [];
-        let currentFilter = 'all';
-        let autoRefresh = true;
-        let refreshInterval;
-        let lastFetchTime = null;
+        const PROXY = 'https://corsproxy.io/?';
+        let posts = [];
+        let filter = 'all';
 
-        // CORS proxy - you can change this to any CORS proxy service
-        const CORS_PROXY = 'https://corsproxy.io/?';
+        function init() {
+            renderFilter();
+            fetchPosts();
+            setInterval(fetchPosts, 60000);
+        }
 
-        function initializeSubredditFilter() {
-            const filterDiv = document.getElementById('subredditFilter');
-            subreddits.forEach(sub => {
+        function renderFilter() {
+            const container = document.getElementById('filter');
+            SUBREDDITS.forEach(sub => {
                 const btn = document.createElement('button');
-                btn.className = 'subreddit-btn';
-                btn.textContent = sub.display;
-                btn.dataset.sub = sub.name;
-                btn.onclick = () => filterBySubreddit(sub.name);
-                filterDiv.appendChild(btn);
+                btn.className = 'filter-btn' + (sub.id === 'all' ? ' active' : '');
+                btn.textContent = sub.name;
+                btn.onclick = () => setFilter(sub.id);
+                container.appendChild(btn);
             });
         }
 
-        function filterBySubreddit(subreddit) {
-            currentFilter = subreddit;
-            document.querySelectorAll('.subreddit-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.dataset.sub === subreddit) {
-                    btn.classList.add('active');
-                }
+        function setFilter(id) {
+            filter = id;
+            document.querySelectorAll('.filter-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', SUBREDDITS[i].id === id);
             });
-
-            if (subreddit === 'all') {
-                filteredPosts = [...allPosts];
-            } else {
-                filteredPosts = allPosts.filter(post => post.subreddit === subreddit);
-            }
-            renderFeed();
+            render();
         }
 
-        async function fetchSubredditRSS(subreddit) {
-            const url = `${CORS_PROXY}https://www.reddit.com/r/${subreddit}/.rss`;
-            
+        async function fetchPosts() {
             try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const text = await response.text();
-                const parser = new DOMParser();
-                const xml = parser.parseFromString(text, 'text/xml');
+                const subs = SUBREDDITS.slice(1);
+                const results = await Promise.all(
+                    subs.map(sub => fetchSubreddit(sub.id))
+                );
                 
-                const items = xml.querySelectorAll('entry');
-                const posts = [];
-
-                items.forEach(item => {
-                    const title = item.querySelector('title')?.textContent || 'No title';
-                    const link = item.querySelector('link')?.getAttribute('href') || '#';
-                    const author = item.querySelector('author name')?.textContent || 'Unknown';
-                    const published = item.querySelector('published')?.textContent || new Date().toISOString();
-                    const content = item.querySelector('content')?.textContent || '';
-                    const id = item.querySelector('id')?.textContent || Math.random().toString();
-
-                    // Extract ticker symbols (basic pattern matching)
-                    const tickerMatches = title.match(/\$[A-Z]{1,5}\b/g) || [];
-
-                    posts.push({
-                        id: id,
-                        title: title,
-                        link: link,
-                        author: author,
-                        published: new Date(published),
-                        content: stripHTML(content),
-                        subreddit: subreddit,
-                        tickers: tickerMatches,
-                        isNew: false
-                    });
-                });
-
-                return posts;
-            } catch (error) {
-                console.error(`Error fetching r/${subreddit}:`, error);
-                showError(`Failed to fetch r/${subreddit}: ${error.message}`);
-                return [];
+                posts = results
+                    .flat()
+                    .sort((a, b) => b.date - a.date)
+                    .slice(0, 50);
+                
+                render();
+            } catch (err) {
+                console.error('Fetch error:', err);
             }
         }
 
-        function stripHTML(html) {
-            const tmp = document.createElement('div');
-            tmp.innerHTML = html;
-            let text = tmp.textContent || tmp.innerText || '';
-            // Remove Reddit's "submitted by" footer
-            text = text.replace(/submitted by.*to r\/\w+/g, '');
-            return text.trim().substring(0, 300) + (text.length > 300 ? '...' : '');
-        }
-
-        function getTimeAgo(date) {
-            const seconds = Math.floor((new Date() - date) / 1000);
+        async function fetchSubreddit(name) {
+            const url = `${PROXY}https://www.reddit.com/r/${name}/.rss`;
+            const res = await fetch(url);
+            const text = await res.text();
+            const xml = new DOMParser().parseFromString(text, 'text/xml');
+            const items = xml.querySelectorAll('entry');
             
-            if (seconds < 60) return `${seconds}s ago`;
-            if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-            if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-            return `${Math.floor(seconds / 86400)}d ago`;
+            return Array.from(items).map(item => ({
+                id: item.querySelector('id')?.textContent,
+                title: item.querySelector('title')?.textContent || '',
+                link: item.querySelector('link')?.getAttribute('href') || '#',
+                author: item.querySelector('author name')?.textContent || 'Unknown',
+                date: new Date(item.querySelector('published')?.textContent),
+                content: clean(item.querySelector('content')?.textContent || ''),
+                sub: name,
+                tickers: extractTickers(item.querySelector('title')?.textContent || '')
+            }));
         }
 
-        async function fetchAllPosts() {
-            document.getElementById('loadingIndicator').style.display = 'block';
-            document.getElementById('errorContainer').innerHTML = '';
-
-            const previousPostIds = new Set(allPosts.map(p => p.id));
-            let newPosts = [];
-
-            try {
-                const fetchPromises = subreddits.map(sub => fetchSubredditRSS(sub.name));
-                const results = await Promise.all(fetchPromises);
-                
-                newPosts = results.flat();
-
-                // Mark new posts
-                newPosts.forEach(post => {
-                    if (!previousPostIds.has(post.id)) {
-                        post.isNew = true;
-                    }
-                });
-
-                // Sort by date (newest first)
-                newPosts.sort((a, b) => b.published - a.published);
-
-                allPosts = newPosts;
-                filterBySubreddit(currentFilter);
-
-                lastFetchTime = new Date();
-                document.getElementById('lastUpdate').textContent = lastFetchTime.toLocaleTimeString();
-                
-                // Update stats
-                const newPostCount = newPosts.filter(p => p.isNew).length;
-                document.getElementById('newPosts').textContent = newPostCount;
-
-            } catch (error) {
-                console.error('Error fetching posts:', error);
-                showError('Failed to fetch posts. Please try again.');
-            } finally {
-                document.getElementById('loadingIndicator').style.display = 'none';
-            }
+        function extractTickers(text) {
+            return (text.match(/\$[A-Z]{1,5}\b/g) || []).filter((v, i, a) => a.indexOf(v) === i);
         }
 
-        function renderFeed() {
-            const grid = document.getElementById('feedGrid');
-            grid.innerHTML = '';
+        function clean(html) {
+            const div = document.createElement('div');
+            div.innerHTML = html;
+            return (div.textContent || '')
+                .replace(/submitted by.*/g, '')
+                .trim()
+                .substring(0, 200);
+        }
 
-            if (filteredPosts.length === 0) {
-                grid.innerHTML = '<div class="loading">No posts found. Try refreshing or selecting a different subreddit.</div>';
-                return;
-            }
+        function timeAgo(date) {
+            const sec = Math.floor((Date.now() - date) / 1000);
+            if (sec < 60) return `${sec}s`;
+            if (sec < 3600) return `${Math.floor(sec / 60)}m`;
+            if (sec < 86400) return `${Math.floor(sec / 3600)}h`;
+            return `${Math.floor(sec / 86400)}d`;
+        }
 
-            filteredPosts.forEach(post => {
-                const card = document.createElement('div');
-                card.className = 'post-card';
-
-                const tickersHTML = post.tickers.length > 0 
-                    ? `<div style="margin: 10px 0;">${post.tickers.map(t => `<span class="ticker-symbol">${t}</span>`).join(' ')}</div>`
-                    : '';
-
-                card.innerHTML = `
-                    ${post.isNew ? '<div class="new-badge">NEW</div>' : ''}
-                    <div class="post-header">
-                        <div class="subreddit-badge">${subreddits.find(s => s.name === post.subreddit)?.display || post.subreddit}</div>
-                        <div class="post-time">${getTimeAgo(post.published)}</div>
+        function render() {
+            const loading = document.getElementById('loading');
+            const feed = document.getElementById('feed');
+            
+            loading.style.display = 'none';
+            
+            const filtered = filter === 'all' 
+                ? posts 
+                : posts.filter(p => p.sub === filter);
+            
+            feed.innerHTML = filtered.map(post => `
+                <article class="post">
+                    <div class="post-meta">
+                        <span class="subreddit">r/${post.sub}</span>
+                        <span class="time">${timeAgo(post.date)}</span>
                     </div>
-                    <div class="post-author">Posted by u/${post.author}</div>
-                    <div class="post-title">${escapeHTML(post.title)}</div>
-                    ${tickersHTML}
-                    ${post.content ? `<div class="post-content">${escapeHTML(post.content)}</div>` : ''}
-                    <a href="${post.link}" target="_blank" rel="noopener noreferrer" class="post-link">View on Reddit →</a>
-                `;
-
-                grid.appendChild(card);
-            });
-
-            updateStats();
+                    <h2 class="title">${escape(post.title)}</h2>
+                    ${post.tickers.length ? `
+                        <div class="tickers">
+                            ${post.tickers.map(t => `<span class="ticker">${t}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                    ${post.content ? `<p class="content">${escape(post.content)}</p>` : ''}
+                    <a href="${post.link}" target="_blank" class="read-more">
+                        Read on Reddit →
+                    </a>
+                </article>
+            `).join('');
         }
 
-        function updateStats() {
-            document.getElementById('totalPosts').textContent = allPosts.length;
-            
-            // Count active subreddits (those with posts)
-            const activeSubs = new Set(allPosts.map(p => p.subreddit)).size;
-            document.getElementById('activeSubreddits').textContent = activeSubs;
-        }
-
-        function showError(message) {
-            const errorContainer = document.getElementById('errorContainer');
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'error';
-            errorDiv.textContent = message;
-            errorContainer.appendChild(errorDiv);
-
-            setTimeout(() => {
-                errorDiv.remove();
-            }, 5000);
-        }
-
-        function escapeHTML(text) {
+        function escape(text) {
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
         }
 
-        function toggleAutoRefresh() {
-            autoRefresh = !autoRefresh;
-            const btn = document.getElementById('pauseBtn');
-            if (autoRefresh) {
-                btn.textContent = '⏸ Pause Auto-Refresh';
-                btn.classList.remove('paused');
-                refreshInterval = setInterval(fetchAllPosts, 60000); // Refresh every 60 seconds
-            } else {
-                btn.textContent = '▶️ Resume Auto-Refresh';
-                btn.classList.add('paused');
-                clearInterval(refreshInterval);
-            }
-        }
-
-        // Initialize
-        initializeSubredditFilter();
-        fetchAllPosts();
-
-        // Set up auto-refresh (every 60 seconds)
-        refreshInterval = setInterval(fetchAllPosts, 60000);
-
-        // Event listeners
-        document.getElementById('refreshBtn').onclick = fetchAllPosts;
-        document.getElementById('pauseBtn').onclick = toggleAutoRefresh;
-
-        // Make filterBySubreddit available globally
-        window.filterBySubreddit = filterBySubreddit;
+        init();
     </script>
 </body>
 </html>
