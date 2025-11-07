@@ -3,29 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ticker Intel - Reddit Stock Tracker</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Stock Trading Reddit Feed Wall</title>
     <style>
-        :root {
-            --bg-primary: #000000;
-            --bg-secondary: #1c1c1e;
-            --text-primary: #ffffff;
-            --text-secondary: #98989d;
-            --accent-green: #30d158;
-            --accent-red: #ff453a;
-            --accent-blue: #007aff;
-            --accent-orange: #ff9500;
-            --accent-purple: #bf5af2;
-            --border-color: #2c2c2e;
-            --card-bg: rgba(28, 28, 30, 0.8);
-            
-            --font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            --radius: 16px;
-            --spacing: 1rem;
-        }
-
         * {
             margin: 0;
             padding: 0;
@@ -33,708 +12,628 @@
         }
 
         body {
-            background: var(--bg-primary);
-            font-family: var(--font-family);
-            color: var(--text-primary);
-            line-height: 1.4;
-            -webkit-font-smoothing: antialiased;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
         }
 
         .header {
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            color: #00ff88;
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .subtitle {
+            color: #a0a0a0;
+            font-size: 1.1em;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
             text-align: center;
-            padding: 3rem 1rem 1rem;
-            background: linear-gradient(180deg, var(--bg-primary) 0%, rgba(0,0,0,0.95) 100%);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            backdrop-filter: blur(20px);
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.03em;
-        }
-
-        .header p {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
-            font-weight: 400;
-            margin-bottom: 1rem;
-        }
-
-        .ticker-stats {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin: 1rem 0;
-            flex-wrap: wrap;
-        }
-
-        .stat-box {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            border: 1px solid var(--border-color);
-            padding: 1rem 1.5rem;
-            backdrop-filter: blur(20px);
-            text-align: center;
-            min-width: 120px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .stat-number {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--accent-blue);
+            font-size: 2em;
+            font-weight: bold;
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
         }
 
         .stat-label {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            color: #a0a0a0;
+            margin-top: 5px;
         }
 
-        .filter-tabs {
+        .subreddit-filter {
             display: flex;
-            justify-content: center;
-            gap: 0.5rem;
-            margin: 1.5rem 1rem;
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 0.5rem;
-            border: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(15, 52, 96, 0.5);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .filter-tab {
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            padding: 0.75rem 1rem;
-            border-radius: 12px;
+        .subreddit-btn {
+            padding: 10px 20px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 2px solid #00ff88;
+            color: #00ff88;
+            border-radius: 20px;
             cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 600;
             transition: all 0.3s ease;
-            min-width: 100px;
+            font-weight: 600;
+            font-size: 0.9em;
         }
 
-        .filter-tab.active {
-            background: var(--accent-blue);
+        .subreddit-btn:hover {
+            background: #00ff88;
+            color: #1a1a2e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 255, 136, 0.4);
+        }
+
+        .subreddit-btn.active {
+            background: #00ff88;
+            color: #1a1a2e;
+            box-shadow: 0 4px 12px rgba(0, 255, 136, 0.4);
+        }
+
+        .controls {
+            background: rgba(15, 52, 96, 0.5);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: #00ff88;
+            color: #1a1a2e;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn:hover {
+            background: #00cc6f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 255, 136, 0.5);
+        }
+
+        .btn-secondary {
+            background: #e53935;
             color: white;
         }
 
-        .filter-tab:hover:not(.active) {
-            background: rgba(255, 255, 255, 0.1);
+        .btn-secondary:hover {
+            background: #c62828;
+        }
+
+        .btn-secondary.paused {
+            background: #4caf50;
+        }
+
+        .btn-secondary.paused:hover {
+            background: #388e3c;
         }
 
         .loading {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 4rem;
-            gap: 1rem;
+            text-align: center;
+            padding: 40px;
+            color: #00ff88;
+            font-size: 1.2em;
         }
 
-        .spinner {
-            width: 24px;
-            height: 24px;
-            border: 2px solid var(--border-color);
-            border-top: 2px solid var(--accent-blue);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        .error {
+            background: rgba(229, 57, 53, 0.2);
+            color: #ff6b6b;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid rgba(229, 57, 53, 0.5);
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .feed-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
         }
 
-        .feed {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 0 1rem 4rem;
-        }
-
-        .stock-card {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            border: 1px solid var(--border-color);
-            margin-bottom: 1rem;
-            padding: 1.5rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            backdrop-filter: blur(20px);
-            position: relative;
-        }
-
-        .stock-card:hover {
-            border-color: var(--accent-blue);
-            transform: translateY(-2px);
-        }
-
-        .stock-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1rem;
-        }
-
-        .ticker-badge {
-            background: var(--accent-blue);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-
-        .ticker-badge.penny {
-            background: var(--accent-orange);
-        }
-
-        .ticker-badge.undervalued {
-            background: var(--accent-green);
-        }
-
-        .ticker-badge.speculative {
-            background: var(--accent-purple);
-        }
-
-        .mention-count {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text-secondary);
-            padding: 0.25rem 0.75rem;
+        .post-card {
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
             border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .stock-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            line-height: 1.3;
-            margin-bottom: 0.75rem;
-            color: var(--text-primary);
-            text-decoration: none;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
             overflow: hidden;
         }
 
-        .stock-title:hover {
-            color: var(--accent-blue);
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .ticker-highlights {
+        .post-card:hover {
+            box-shadow: 0 4px 16px rgba(0, 255, 136, 0.2);
+            transform: translateY(-5px);
+            border-color: rgba(0, 255, 136, 0.3);
+        }
+
+        .post-header {
             display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 15px;
         }
 
-        .ticker-tag {
-            background: rgba(0, 122, 255, 0.2);
-            color: var(--accent-blue);
-            padding: 0.25rem 0.75rem;
-            border-radius: 12px;
-            font-size: 0.8rem;
+        .subreddit-badge {
+            padding: 5px 12px;
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid #00ff88;
+            border-radius: 20px;
+            color: #00ff88;
             font-weight: 600;
-            border: 1px solid rgba(0, 122, 255, 0.3);
+            font-size: 0.85em;
+            margin-right: 10px;
         }
 
-        .price-tag {
-            background: rgba(48, 209, 88, 0.2);
-            color: var(--accent-green);
-            border: 1px solid rgba(48, 209, 88, 0.3);
+        .post-time {
+            color: #a0a0a0;
+            font-size: 0.85em;
+            margin-left: auto;
         }
 
-        .target-tag {
-            background: rgba(255, 149, 0, 0.2);
-            color: var(--accent-orange);
-            border: 1px solid rgba(255, 149, 0, 0.3);
+        .post-author {
+            color: #a0a0a0;
+            font-size: 0.9em;
+            margin-bottom: 10px;
         }
 
-        .stock-excerpt {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            line-height: 1.5;
-            margin-bottom: 1rem;
+        .post-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 12px;
+            line-height: 1.4;
             display: -webkit-box;
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
 
-        .stock-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
+        .post-content {
+            color: #d0d0d0;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            font-size: 0.95em;
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
-        .stock-stats {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .stat {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        .stock-source {
-            font-weight: 500;
-        }
-
-        .refresh-button {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            width: 56px;
-            height: 56px;
-            background: var(--accent-blue);
-            border: none;
-            border-radius: 50%;
-            color: white;
-            font-size: 1.25rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 20px rgba(0, 122, 255, 0.3);
-            z-index: 1000;
-        }
-
-        .refresh-button:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 25px rgba(0, 122, 255, 0.4);
-        }
-
-        .error {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: var(--accent-red);
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .error h3 {
-            font-size: 1.25rem;
+        .post-link {
+            display: inline-block;
+            color: #00ff88;
+            text-decoration: none;
             font-weight: 600;
-            margin-bottom: 0.5rem;
+            margin-top: 10px;
+            transition: color 0.2s;
         }
 
-        .error p {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
+        .post-link:hover {
+            color: #00cc6f;
+            text-decoration: underline;
+        }
+
+        .new-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #e53935;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .last-update {
+            color: #a0a0a0;
+            margin-left: auto;
+            font-size: 0.9em;
         }
 
         @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2rem;
+            .feed-grid {
+                grid-template-columns: 1fr;
             }
-            
-            .ticker-stats {
-                gap: 1rem;
+
+            h1 {
+                font-size: 1.8em;
             }
-            
-            .filter-tabs {
-                margin: 1rem 0.5rem;
-            }
-            
-            .feed {
-                padding: 0 0.75rem 4rem;
-            }
-            
-            .stock-card {
-                padding: 1.25rem;
-            }
-            
-            .stock-header {
+
+            .controls {
                 flex-direction: column;
-                gap: 0.75rem;
-                align-items: flex-start;
+                align-items: stretch;
             }
-            
-            .stock-meta {
-                flex-direction: column;
-                gap: 0.5rem;
-                align-items: flex-start;
+
+            .btn {
+                width: 100%;
             }
+        }
+
+        .ticker-symbol {
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .info-box {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-box p {
+            margin: 5px 0;
+            color: #d0d0d0;
+        }
+
+        .cors-note {
+            background: rgba(255, 152, 0, 0.2);
+            border: 1px solid rgba(255, 152, 0, 0.5);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #ffb74d;
         }
     </style>
 </head>
 <body>
-    <header class="header">
-        <h1>Ticker Intel</h1>
-        <p>Most discussed undervalued & penny stocks from Reddit</p>
-        
-        <div class="ticker-stats">
-            <div class="stat-box">
-                <div class="stat-number" id="total-tickers">0</div>
-                <div class="stat-label">Tickers Found</div>
+    <div class="container">
+        <div class="header">
+            <h1>📈 Stock Trading Reddit Feed Wall</h1>
+            <p class="subtitle">Live RSS feeds from r/stocks, r/wallstreetbets, r/pennystocks, r/smallstreetbets, r/10xpennystocks</p>
+        </div>
+
+        <div class="cors-note">
+            <strong>⚠️ CORS Note:</strong> This page fetches real RSS feeds from Reddit. If you see CORS errors, you may need to:
+            <br>• Use a CORS proxy (like https://corsproxy.io/)
+            <br>• Run this through a local server
+            <br>• Use a browser extension to disable CORS for testing
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalPosts">0</div>
+                <div class="stat-label">Total Posts</div>
             </div>
-            <div class="stat-box">
-                <div class="stat-number" id="penny-count">0</div>
-                <div class="stat-label">Penny Stocks</div>
+            <div class="stat-card">
+                <div class="stat-number" id="activeSubreddits">5</div>
+                <div class="stat-label">Active Subreddits</div>
             </div>
-            <div class="stat-box">
-                <div class="stat-number" id="undervalued-count">0</div>
-                <div class="stat-label">Undervalued</div>
+            <div class="stat-card">
+                <div class="stat-number" id="newPosts">0</div>
+                <div class="stat-label">New Posts (Last Refresh)</div>
             </div>
         </div>
 
-        <div class="filter-tabs">
-            <button class="filter-tab active" onclick="filterStocks('all')">All Stocks</button>
-            <button class="filter-tab" onclick="filterStocks('penny')">Penny Stocks</button>
-            <button class="filter-tab" onclick="filterStocks('undervalued')">Undervalued</button>
-            <button class="filter-tab" onclick="filterStocks('trending')">Most Discussed</button>
+        <div class="subreddit-filter" id="subredditFilter">
+            <button class="subreddit-btn active" data-sub="all">All Subreddits</button>
         </div>
-    </header>
 
-    <main class="feed">
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <span>Scanning for ticker symbols...</span>
+        <div class="controls">
+            <button class="btn" id="refreshBtn">🔄 Refresh Feed</button>
+            <button class="btn btn-secondary" id="pauseBtn">⏸ Pause Auto-Refresh</button>
+            <span class="last-update">Last updated: <strong id="lastUpdate">Loading...</strong></span>
         </div>
-        
-        <div id="stocks" style="display: none;"></div>
-        <div id="error" style="display: none;"></div>
-    </main>
 
-    <button class="refresh-button" onclick="loadStocks()" title="Refresh">
-        ↻
-    </button>
+        <div id="loadingIndicator" class="loading">Loading posts from Reddit...</div>
+        <div id="errorContainer"></div>
+
+        <div class="feed-grid" id="feedGrid"></div>
+    </div>
 
     <script>
-        const SUBREDDITS = ['pennystocks', 'UndervaluedStonks', 'ValueInvesting', 'wallstreetbets', 'stocks', 'StockMarket'];
-        
-        // Enhanced ticker extraction patterns
-        const TICKER_PATTERNS = [
-            /\$([A-Z]{1,5})\b/g,  // $AAPL format
-            /\b([A-Z]{2,5})\s+(?:stock|shares|calls|puts|position)/gi,  // AAPL stock
-            /\b([A-Z]{2,5})\s+(?:to|at|hit|target|price)/gi,  // AAPL to $150
-            /(?:ticker|symbol):\s*([A-Z]{2,5})/gi,  // ticker: AAPL
-            /\b([A-Z]{2,5})\s+(?:\$\d+)/g,  // AAPL $150
+        // Subreddits configuration
+        const subreddits = [
+            { name: 'stocks', display: 'r/stocks' },
+            { name: 'wallstreetbets', display: 'r/wallstreetbets' },
+            { name: 'pennystocks', display: 'r/pennystocks' },
+            { name: 'smallstreetbets', display: 'r/smallstreetbets' },
+            { name: '10xpennystocks', display: 'r/10xpennystocks' }
         ];
 
-        // Keywords that indicate value/penny stocks
-        const VALUE_KEYWORDS = ['undervalued', 'undervalue', 'cheap', 'bargain', 'discount', 'value play', 'fundamentals', 'pe ratio', 'book value'];
-        const PENNY_KEYWORDS = ['penny stock', 'under $5', 'under $1', 'micro cap', 'small cap', 'otc'];
-        const PRICE_PATTERNS = /\$(\d+(?:\.\d{2})?)/g;
-        const TARGET_PATTERNS = /(?:target|pt|price target).*?\$(\d+(?:\.\d{2})?)/gi;
-
-        let allStocks = [];
+        let allPosts = [];
+        let filteredPosts = [];
         let currentFilter = 'all';
+        let autoRefresh = true;
+        let refreshInterval;
+        let lastFetchTime = null;
 
-        function extractTickers(text) {
-            const tickers = new Set();
-            
-            TICKER_PATTERNS.forEach(pattern => {
-                const matches = text.matchAll(pattern);
-                for (const match of matches) {
-                    const ticker = match[1].toUpperCase();
-                    // Filter out common false positives
-                    if (ticker.length >= 2 && ticker.length <= 5 && 
-                        !['THE', 'AND', 'FOR', 'ARE', 'BUT', 'NOT', 'YOU', 'ALL', 'CAN', 'HER', 'WAS', 'ONE', 'OUR', 'OUT', 'DAY', 'GET', 'HAS', 'HIM', 'HIS', 'HOW', 'ITS', 'MAY', 'NEW', 'NOW', 'OLD', 'SEE', 'TWO', 'WHO', 'BOY', 'DID', 'ITS', 'LET', 'PUT', 'SAY', 'SHE', 'TOO', 'USE'].includes(ticker)) {
-                        tickers.add(ticker);
-                    }
+        // CORS proxy - you can change this to any CORS proxy service
+        const CORS_PROXY = 'https://corsproxy.io/?';
+
+        function initializeSubredditFilter() {
+            const filterDiv = document.getElementById('subredditFilter');
+            subreddits.forEach(sub => {
+                const btn = document.createElement('button');
+                btn.className = 'subreddit-btn';
+                btn.textContent = sub.display;
+                btn.dataset.sub = sub.name;
+                btn.onclick = () => filterBySubreddit(sub.name);
+                filterDiv.appendChild(btn);
+            });
+        }
+
+        function filterBySubreddit(subreddit) {
+            currentFilter = subreddit;
+            document.querySelectorAll('.subreddit-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.sub === subreddit) {
+                    btn.classList.add('active');
                 }
             });
-            
-            return Array.from(tickers);
+
+            if (subreddit === 'all') {
+                filteredPosts = [...allPosts];
+            } else {
+                filteredPosts = allPosts.filter(post => post.subreddit === subreddit);
+            }
+            renderFeed();
         }
 
-        function extractPriceInfo(text) {
-            const prices = [];
-            const targets = [];
+        async function fetchSubredditRSS(subreddit) {
+            const url = `${CORS_PROXY}https://www.reddit.com/r/${subreddit}/.rss`;
             
-            const priceMatches = text.matchAll(PRICE_PATTERNS);
-            for (const match of priceMatches) {
-                prices.push(parseFloat(match[1]));
-            }
-            
-            const targetMatches = text.matchAll(TARGET_PATTERNS);
-            for (const match of targetMatches) {
-                targets.push(parseFloat(match[1]));
-            }
-            
-            return { prices, targets };
-        }
-
-        function analyzeStockType(text, tickers) {
-            const lowerText = text.toLowerCase();
-            const { prices, targets } = extractPriceInfo(text);
-            
-            let type = 'speculative';
-            const tags = [];
-            
-            // Check for value indicators
-            if (VALUE_KEYWORDS.some(keyword => lowerText.includes(keyword))) {
-                type = 'undervalued';
-                tags.push('Value Play');
-            }
-            
-            // Check for penny stock indicators
-            if (PENNY_KEYWORDS.some(keyword => lowerText.includes(keyword)) || 
-                prices.some(price => price < 5)) {
-                type = 'penny';
-                tags.push('Penny Stock');
-            }
-            
-            // Add price tags
-            if (prices.length > 0) {
-                const avgPrice = prices.reduce((a, b) => a + b) / prices.length;
-                tags.push(`$${avgPrice.toFixed(2)}`);
-            }
-            
-            // Add target tags
-            if (targets.length > 0) {
-                const avgTarget = targets.reduce((a, b) => a + b) / targets.length;
-                tags.push(`PT: $${avgTarget.toFixed(2)}`);
-            }
-            
-            return { type, tags };
-        }
-
-        function getTimeAgo(timestamp) {
-            const now = Date.now();
-            const diff = Math.floor((now - timestamp) / 1000);
-            
-            if (diff < 60) return `${diff}s`;
-            if (diff < 3600) return `${Math.floor(diff / 60)}m`;
-            if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
-            return `${Math.floor(diff / 86400)}d`;
-        }
-
-        function formatNumber(num) {
-            if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
-            if (num >= 1000) return `${(num / 1000).toFixed(1)}k`;
-            return num.toString();
-        }
-
-        async function fetchSubreddit(subreddit, limit = 15) {
             try {
-                const response = await fetch(`https://www.reddit.com/r/${subreddit}/hot.json?limit=${limit}`);
-                if (!response.ok) throw new Error(`Failed to fetch r/${subreddit}`);
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const text = await response.text();
+                const parser = new DOMParser();
+                const xml = parser.parseFromString(text, 'text/xml');
                 
-                const data = await response.json();
+                const items = xml.querySelectorAll('entry');
                 const posts = [];
-                
-                data.data.children.forEach(post => {
-                    const postData = post.data;
-                    const fullText = `${postData.title} ${postData.selftext || ''}`;
-                    const tickers = extractTickers(fullText);
-                    
-                    if (tickers.length > 0) {
-                        const analysis = analyzeStockType(fullText, tickers);
-                        
-                        posts.push({
-                            title: postData.title,
-                            url: `https://reddit.com${postData.permalink}`,
-                            source: `r/${subreddit}`,
-                            publishedAt: postData.created_utc * 1000,
-                            description: postData.selftext || '',
-                            score: postData.score,
-                            comments: postData.num_comments,
-                            author: postData.author,
-                            tickers: tickers,
-                            stockType: analysis.type,
-                            tags: analysis.tags,
-                            mentionCount: tickers.length
-                        });
-                    }
+
+                items.forEach(item => {
+                    const title = item.querySelector('title')?.textContent || 'No title';
+                    const link = item.querySelector('link')?.getAttribute('href') || '#';
+                    const author = item.querySelector('author name')?.textContent || 'Unknown';
+                    const published = item.querySelector('published')?.textContent || new Date().toISOString();
+                    const content = item.querySelector('content')?.textContent || '';
+                    const id = item.querySelector('id')?.textContent || Math.random().toString();
+
+                    // Extract ticker symbols (basic pattern matching)
+                    const tickerMatches = title.match(/\$[A-Z]{1,5}\b/g) || [];
+
+                    posts.push({
+                        id: id,
+                        title: title,
+                        link: link,
+                        author: author,
+                        published: new Date(published),
+                        content: stripHTML(content),
+                        subreddit: subreddit,
+                        tickers: tickerMatches,
+                        isNew: false
+                    });
                 });
-                
+
                 return posts;
             } catch (error) {
                 console.error(`Error fetching r/${subreddit}:`, error);
+                showError(`Failed to fetch r/${subreddit}: ${error.message}`);
                 return [];
             }
         }
 
-        async function fetchAllStocks() {
-            const allPosts = [];
+        function stripHTML(html) {
+            const tmp = document.createElement('div');
+            tmp.innerHTML = html;
+            let text = tmp.textContent || tmp.innerText || '';
+            // Remove Reddit's "submitted by" footer
+            text = text.replace(/submitted by.*to r\/\w+/g, '');
+            return text.trim().substring(0, 300) + (text.length > 300 ? '...' : '');
+        }
+
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
             
-            for (const subreddit of SUBREDDITS) {
-                const posts = await fetchSubreddit(subreddit, 10);
-                allPosts.push(...posts);
+            if (seconds < 60) return `${seconds}s ago`;
+            if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+            if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+            return `${Math.floor(seconds / 86400)}d ago`;
+        }
+
+        async function fetchAllPosts() {
+            document.getElementById('loadingIndicator').style.display = 'block';
+            document.getElementById('errorContainer').innerHTML = '';
+
+            const previousPostIds = new Set(allPosts.map(p => p.id));
+            let newPosts = [];
+
+            try {
+                const fetchPromises = subreddits.map(sub => fetchSubredditRSS(sub.name));
+                const results = await Promise.all(fetchPromises);
+                
+                newPosts = results.flat();
+
+                // Mark new posts
+                newPosts.forEach(post => {
+                    if (!previousPostIds.has(post.id)) {
+                        post.isNew = true;
+                    }
+                });
+
+                // Sort by date (newest first)
+                newPosts.sort((a, b) => b.published - a.published);
+
+                allPosts = newPosts;
+                filterBySubreddit(currentFilter);
+
+                lastFetchTime = new Date();
+                document.getElementById('lastUpdate').textContent = lastFetchTime.toLocaleTimeString();
+                
+                // Update stats
+                const newPostCount = newPosts.filter(p => p.isNew).length;
+                document.getElementById('newPosts').textContent = newPostCount;
+
+            } catch (error) {
+                console.error('Error fetching posts:', error);
+                showError('Failed to fetch posts. Please try again.');
+            } finally {
+                document.getElementById('loadingIndicator').style.display = 'none';
             }
-            
-            // Group by primary ticker and sort by engagement
-            const tickerGroups = {};
-            allPosts.forEach(post => {
-                const primaryTicker = post.tickers[0];
-                if (!tickerGroups[primaryTicker]) {
-                    tickerGroups[primaryTicker] = [];
-                }
-                tickerGroups[primaryTicker].push(post);
-            });
-            
-            // Get best post for each ticker
-            const bestPosts = Object.entries(tickerGroups).map(([ticker, posts]) => {
-                const bestPost = posts.sort((a, b) => (b.score + b.comments * 2) - (a.score + a.comments * 2))[0];
-                bestPost.totalMentions = posts.length;
-                bestPost.primaryTicker = ticker;
-                return bestPost;
-            });
-            
-            return bestPosts.sort((a, b) => (b.score + b.comments * 3 + b.totalMentions * 50) - (a.score + a.comments * 3 + a.totalMentions * 50));
         }
 
-        function updateStats(stocks) {
-            const totalTickers = stocks.length;
-            const pennyCount = stocks.filter(s => s.stockType === 'penny').length;
-            const undervaluedCount = stocks.filter(s => s.stockType === 'undervalued').length;
-            
-            document.getElementById('total-tickers').textContent = totalTickers;
-            document.getElementById('penny-count').textContent = pennyCount;
-            document.getElementById('undervalued-count').textContent = undervaluedCount;
-        }
+        function renderFeed() {
+            const grid = document.getElementById('feedGrid');
+            grid.innerHTML = '';
 
-        function createStockCard(stock) {
-            const timeAgo = getTimeAgo(stock.publishedAt);
-            const excerpt = stock.description.slice(0, 180) + (stock.description.length > 180 ? '...' : '');
-            
-            const tickerTags = stock.tickers.map(ticker => 
-                `<span class="ticker-tag">${ticker}</span>`
-            ).join('');
-            
-            const priceTags = stock.tags.map(tag => {
-                let className = 'ticker-tag';
-                if (tag.startsWith('$')) className += ' price-tag';
-                if (tag.startsWith('PT:')) className += ' target-tag';
-                return `<span class="${className}">${tag}</span>`;
-            }).join('');
-            
-            return `
-                <article class="stock-card" data-type="${stock.stockType}">
-                    <div class="stock-header">
-                        <div class="ticker-badge ${stock.stockType}">
-                            ${stock.primaryTicker}
-                        </div>
-                        <div class="mention-count">
-                            ${stock.totalMentions} mentions
-                        </div>
+            if (filteredPosts.length === 0) {
+                grid.innerHTML = '<div class="loading">No posts found. Try refreshing or selecting a different subreddit.</div>';
+                return;
+            }
+
+            filteredPosts.forEach(post => {
+                const card = document.createElement('div');
+                card.className = 'post-card';
+
+                const tickersHTML = post.tickers.length > 0 
+                    ? `<div style="margin: 10px 0;">${post.tickers.map(t => `<span class="ticker-symbol">${t}</span>`).join(' ')}</div>`
+                    : '';
+
+                card.innerHTML = `
+                    ${post.isNew ? '<div class="new-badge">NEW</div>' : ''}
+                    <div class="post-header">
+                        <div class="subreddit-badge">${subreddits.find(s => s.name === post.subreddit)?.display || post.subreddit}</div>
+                        <div class="post-time">${getTimeAgo(post.published)}</div>
                     </div>
-                    
-                    <a href="${stock.url}" target="_blank" class="stock-title">
-                        ${stock.title}
-                    </a>
-                    
-                    <div class="ticker-highlights">
-                        ${tickerTags}
-                        ${priceTags}
-                    </div>
-                    
-                    ${excerpt ? `<p class="stock-excerpt">${excerpt}</p>` : ''}
-                    
-                    <div class="stock-meta">
-                        <div class="stock-stats">
-                            <div class="stat">↑ ${formatNumber(stock.score)}</div>
-                            <div class="stat">💬 ${formatNumber(stock.comments)}</div>
-                        </div>
-                        <div>
-                            <span class="stock-source">${stock.source}</span>
-                            <span> • ${timeAgo}</span>
-                        </div>
-                    </div>
-                </article>
-            `;
-        }
+                    <div class="post-author">Posted by u/${post.author}</div>
+                    <div class="post-title">${escapeHTML(post.title)}</div>
+                    ${tickersHTML}
+                    ${post.content ? `<div class="post-content">${escapeHTML(post.content)}</div>` : ''}
+                    <a href="${post.link}" target="_blank" rel="noopener noreferrer" class="post-link">View on Reddit →</a>
+                `;
 
-        function filterStocks(filter) {
-            currentFilter = filter;
-            
-            // Update active tab
-            document.querySelectorAll('.filter-tab').forEach(tab => {
-                tab.classList.remove('active');
+                grid.appendChild(card);
             });
-            event.target.classList.add('active');
-            
-            applyFilter(filter);
+
+            updateStats();
         }
 
-        function applyFilter(filter) {
-            const cards = document.querySelectorAll('.stock-card');
+        function updateStats() {
+            document.getElementById('totalPosts').textContent = allPosts.length;
             
-            cards.forEach(card => {
-                let show = true;
-                
-                switch(filter) {
-                    case 'penny':
-                        show = card.dataset.type === 'penny';
-                        break;
-                    case 'undervalued':
-                        show = card.dataset.type === 'undervalued';
-                        break;
-                    case 'trending':
-                        // Show top 10 most discussed
-                        const index = Array.from(cards).indexOf(card);
-                        show = index < 10;
-                        break;
-                }
-                
-                card.style.display = show ? 'block' : 'none';
-            });
-        }
-
-        function displayStocks(stocks) {
-            const container = document.getElementById('stocks');
-            container.innerHTML = stocks.map(createStockCard).join('');
-            updateStats(stocks);
-            applyFilter(currentFilter);
+            // Count active subreddits (those with posts)
+            const activeSubs = new Set(allPosts.map(p => p.subreddit)).size;
+            document.getElementById('activeSubreddits').textContent = activeSubs;
         }
 
         function showError(message) {
-            const errorContainer = document.getElementById('error');
-            errorContainer.innerHTML = `
-                <div class="error">
-                    <h3>Unable to load stock data</h3>
-                    <p>${message}</p>
-                </div>
-            `;
-            errorContainer.style.display = 'block';
+            const errorContainer = document.getElementById('errorContainer');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = message;
+            errorContainer.appendChild(errorDiv);
+
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
         }
 
-        async function loadStocks() {
-            const loading = document.getElementById('loading');
-            const stocks = document.getElementById('stocks');
-            const error = document.getElementById('error');
-            
-            loading.style.display = 'flex';
-            stocks.style.display = 'none';
-            error.style.display = 'none';
-            
-            try {
-                const data = await fetchAllStocks();
-                allStocks = data;
-                
-                displayStocks(data);
-                
-                loading.style.display = 'none';
-                stocks.style.display = 'block';
-                
-            } catch (err) {
-                console.error('Error loading stocks:', err);
-                loading.style.display = 'none';
-                showError('Failed to load stock discussions. Please try again.');
+        function escapeHTML(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function toggleAutoRefresh() {
+            autoRefresh = !autoRefresh;
+            const btn = document.getElementById('pauseBtn');
+            if (autoRefresh) {
+                btn.textContent = '⏸ Pause Auto-Refresh';
+                btn.classList.remove('paused');
+                refreshInterval = setInterval(fetchAllPosts, 60000); // Refresh every 60 seconds
+            } else {
+                btn.textContent = '▶️ Resume Auto-Refresh';
+                btn.classList.add('paused');
+                clearInterval(refreshInterval);
             }
         }
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', loadStocks);
-        
-        // Auto-refresh every 10 minutes
-        setInterval(loadStocks, 600000);
-        
-        // Keyboard shortcut
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'r' && !e.ctrlKey && !e.metaKey) {
-                loadStocks();
-            }
-        });
+        initializeSubredditFilter();
+        fetchAllPosts();
+
+        // Set up auto-refresh (every 60 seconds)
+        refreshInterval = setInterval(fetchAllPosts, 60000);
+
+        // Event listeners
+        document.getElementById('refreshBtn').onclick = fetchAllPosts;
+        document.getElementById('pauseBtn').onclick = toggleAutoRefresh;
+
+        // Make filterBySubreddit available globally
+        window.filterBySubreddit = filterBySubreddit;
     </script>
 </body>
 </html>
