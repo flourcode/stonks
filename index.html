@@ -150,8 +150,24 @@
       const url=`${PROXY}https://www.reddit.com/r/${name}/.rss`;
       const res=await fetch(url);
       if(!res.ok) return [];
-      const text=await res.text();
-      const xml=new DOMParser().parseFromString(text,'text/xml');
+      const text = await res.text();
+
+// stop if Cloudflare returned an error
+if (text.startsWith("Invalid RSS") || text.startsWith("Worker error")) {
+  console.warn(`Skipping ${name}: bad RSS`);
+  return [];
+}
+
+// try parsing as XML, handle malformed
+let xml;
+try {
+  xml = new DOMParser().parseFromString(text, "application/xml");
+  if (xml.querySelector("parsererror")) throw new Error("Invalid XML");
+} catch {
+  console.warn(`Bad XML from r/${name}`);
+  return [];
+}
+
       const items=xml.querySelectorAll('entry');
       return Array.from(items).slice(0,MAX_POSTS).map(item=>({
         title:item.querySelector('title')?.textContent||'',
