@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STOCK FEED TERMINAL</title>
+    <title>SIDE PROJECT TERMINAL</title>
     <style>
         * {
             margin: 0;
@@ -72,23 +72,6 @@
             margin: 0 auto;
         }
 
-        .data-panel {
-            background: #0a0a0a;
-            border: 1px solid #333;
-            margin-bottom: 20px;
-            padding: 15px;
-        }
-
-        .panel-header {
-            color: #ff9500;
-            font-size: 0.75em;
-            letter-spacing: 0.15em;
-            margin-bottom: 15px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #333;
-            font-weight: bold;
-        }
-
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -116,37 +99,51 @@
             font-family: 'Courier New', monospace;
         }
 
-        .filter-bar {
-            display: flex;
-            gap: 0;
-            margin-bottom: 20px;
+        .data-panel {
             background: #0a0a0a;
             border: 1px solid #333;
-            overflow-x: auto;
+            margin-bottom: 20px;
+            padding: 15px;
+        }
+
+        .panel-header {
+            color: #ff9500;
+            font-size: 0.75em;
+            letter-spacing: 0.15em;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #333;
+            font-weight: bold;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
         }
 
         .filter-btn {
-            padding: 12px 24px;
+            padding: 8px 16px;
             background: #0a0a0a;
-            border: none;
-            border-right: 1px solid #333;
+            border: 1px solid #333;
             color: #888;
             cursor: pointer;
             transition: all 0.2s;
             font-family: 'Courier New', monospace;
-            font-size: 0.85em;
+            font-size: 0.75em;
             letter-spacing: 0.05em;
-            white-space: nowrap;
         }
 
         .filter-btn:hover {
             background: #1a1a1a;
             color: #ff9500;
+            border-color: #ff9500;
         }
 
         .filter-btn.active {
             background: #ff9500;
             color: #000;
+            border-color: #ff9500;
             font-weight: bold;
         }
 
@@ -159,9 +156,10 @@
         .post-terminal {
             background: #0a0a0a;
             border: 1px solid #333;
-            padding: 15px;
+            padding: 0;
             transition: all 0.2s;
             position: relative;
+            overflow: hidden;
         }
 
         .post-terminal:hover {
@@ -169,13 +167,42 @@
             box-shadow: 0 0 10px rgba(255, 149, 0, 0.2);
         }
 
+        .post-image {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            display: block;
+            border-bottom: 1px solid #333;
+            background: #1a1a1a;
+        }
+
+        .post-content-area {
+            padding: 15px;
+        }
+
         .post-id {
             position: absolute;
             top: 8px;
             right: 10px;
             font-size: 0.65em;
-            color: #444;
+            color: #000;
+            background: rgba(255, 149, 0, 0.9);
+            padding: 3px 8px;
             letter-spacing: 0.1em;
+            z-index: 10;
+        }
+
+        .image-badge {
+            position: absolute;
+            top: 8px;
+            left: 10px;
+            font-size: 0.65em;
+            color: #000;
+            background: #00ff00;
+            padding: 3px 8px;
+            letter-spacing: 0.1em;
+            z-index: 10;
+            font-weight: bold;
         }
 
         .post-header-term {
@@ -190,7 +217,7 @@
         .source-tag {
             color: #ff9500;
             font-weight: bold;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.05em;
         }
 
         .timestamp {
@@ -203,23 +230,6 @@
             line-height: 1.5;
             margin-bottom: 12px;
             font-weight: normal;
-        }
-
-        .ticker-bar {
-            display: flex;
-            gap: 8px;
-            margin: 12px 0;
-            flex-wrap: wrap;
-        }
-
-        .ticker-term {
-            background: #1a1a1a;
-            color: #00ff00;
-            padding: 4px 10px;
-            border: 1px solid #00ff00;
-            font-size: 0.8em;
-            font-weight: bold;
-            letter-spacing: 0.05em;
         }
 
         .post-content-term {
@@ -307,7 +317,7 @@
 
         .tape-content {
             display: inline-block;
-            animation: scroll 30s linear infinite;
+            animation: scroll 40s linear infinite;
             color: #00ff00;
             font-size: 0.85em;
             letter-spacing: 0.1em;
@@ -330,29 +340,22 @@
             .terminal-status {
                 display: none;
             }
+
+            .filter-bar {
+                max-height: 150px;
+                overflow-y: auto;
+            }
         }
 
-        /* Data density emphasis */
-        .info-dense {
-            font-size: 0.75em;
-            line-height: 1.4;
-        }
-
-        /* Bloomberg orange highlight */
-        .highlight {
-            color: #ff9500;
-            font-weight: bold;
-        }
-
-        /* Matrix-style text effect */
-        .matrix-text {
-            text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
-        }
+        .category-indie { border-left: 3px solid #00ff00; }
+        .category-dev { border-left: 3px solid #0099ff; }
+        .category-business { border-left: 3px solid #ff9500; }
+        .category-design { border-left: 3px solid #ff00ff; }
     </style>
 </head>
 <body>
     <div class="terminal-header">
-        <div class="terminal-title">STOCK FEED TERMINAL v2.1</div>
+        <div class="terminal-title">SIDE PROJECT TERMINAL v1.0</div>
         <div class="terminal-time" id="termTime">--:--:--</div>
         <div class="terminal-status">
             <div class="status-item">
@@ -360,15 +363,15 @@
                 <span>LIVE</span>
             </div>
             <div class="status-item">
-                <span style="color: #00ff00;">CONNECTED</span>
+                <span style="color: #00ff00;">20 SOURCES</span>
             </div>
         </div>
     </div>
 
     <div class="ticker-tape">
         <div class="tape-content" id="tickerTape">
-            ● MARKET DATA STREAMING ● REDDIT FEEDS ACTIVE ● REAL-TIME UPDATES ● 
-            ● MARKET DATA STREAMING ● REDDIT FEEDS ACTIVE ● REAL-TIME UPDATES ● 
+            ● BUILD IN PUBLIC ● SHIP FAST ● INDIE HACKERS UNITE ● SIDE PROJECTS STREAMING ● REAL-TIME UPDATES ● 
+            ● BUILD IN PUBLIC ● SHIP FAST ● INDIE HACKERS UNITE ● SIDE PROJECTS STREAMING ● REAL-TIME UPDATES ● 
         </div>
     </div>
 
@@ -379,8 +382,8 @@
                 <div class="stat-value" id="statTotal">---</div>
             </div>
             <div class="stat-box">
-                <div class="stat-label">SOURCES ACTIVE</div>
-                <div class="stat-value" id="statSources">5</div>
+                <div class="stat-label">WITH IMAGES</div>
+                <div class="stat-value" id="statImages">---</div>
             </div>
             <div class="stat-box">
                 <div class="stat-label">LAST UPDATE</div>
@@ -393,7 +396,7 @@
         </div>
 
         <div class="data-panel">
-            <div class="panel-header">SOURCE FILTER</div>
+            <div class="panel-header">SOURCE FILTER [20 SUBREDDITS]</div>
             <div class="filter-bar" id="filterBar"></div>
         </div>
 
@@ -401,7 +404,7 @@
             <div class="loading-bar">
                 <div class="loading-progress"></div>
             </div>
-            <div class="loading-text">LOADING MARKET DATA...</div>
+            <div class="loading-text">LOADING PROJECT FEEDS...</div>
         </div>
 
         <div class="feed-container" id="feedContainer"></div>
@@ -409,12 +412,27 @@
 
     <script>
         const SOURCES = [
-            { id: 'all', name: 'ALL SOURCES' },
-            { id: 'stocks', name: 'STOCKS' },
-            { id: 'wallstreetbets', name: 'WSB' },
-            { id: 'pennystocks', name: 'PENNY' },
-            { id: 'smallstreetbets', name: 'SMALL' },
-            { id: '10xpennystocks', name: '10X' }
+            { id: 'all', name: 'ALL', cat: 'all' },
+            { id: 'SideProject', name: 'SIDEPROJECT', cat: 'indie' },
+            { id: 'indiehackers', name: 'INDIEHACKERS', cat: 'indie' },
+            { id: 'SaaS', name: 'SAAS', cat: 'business' },
+            { id: 'microsaas', name: 'MICROSAAS', cat: 'business' },
+            { id: 'Entrepreneur', name: 'ENTREPRENEUR', cat: 'business' },
+            { id: 'sidehustle', name: 'SIDEHUSTLE', cat: 'indie' },
+            { id: 'webdev', name: 'WEBDEV', cat: 'dev' },
+            { id: 'nocode', name: 'NOCODE', cat: 'dev' },
+            { id: 'indiebiz', name: 'INDIEBIZ', cat: 'indie' },
+            { id: 'startups', name: 'STARTUPS', cat: 'business' },
+            { id: 'GrowMyBusiness', name: 'GROWMYBIZ', cat: 'business' },
+            { id: 'smallbusiness', name: 'SMALLBIZ', cat: 'business' },
+            { id: 'marketing', name: 'MARKETING', cat: 'business' },
+            { id: 'ProductManagement', name: 'PRODUCT', cat: 'business' },
+            { id: 'learnprogramming', name: 'LEARNCODE', cat: 'dev' },
+            { id: 'userexperience', name: 'UX', cat: 'design' },
+            { id: 'alphaandbetausers', name: 'ALPHA/BETA', cat: 'indie' },
+            { id: 'roastmystartup', name: 'ROAST', cat: 'indie' },
+            { id: 'ExperiencedDevs', name: 'EXPDEVS', cat: 'dev' },
+            { id: 'Futurology', name: 'FUTURE', cat: 'design' }
         ];
 
         const PROXY = 'https://corsproxy.io/?';
@@ -458,7 +476,7 @@
             try {
                 const subs = SOURCES.slice(1);
                 const results = await Promise.all(
-                    subs.map(src => fetchSubreddit(src.id))
+                    subs.map(src => fetchSubreddit(src.id, src.cat))
                 );
                 
                 posts = results
@@ -473,27 +491,63 @@
             }
         }
 
-        async function fetchSubreddit(name) {
+        async function fetchSubreddit(name, category) {
             const url = `${PROXY}https://www.reddit.com/r/${name}/.rss`;
-            const res = await fetch(url);
-            const text = await res.text();
-            const xml = new DOMParser().parseFromString(text, 'text/xml');
-            const items = xml.querySelectorAll('entry');
-            
-            return Array.from(items).map(item => ({
-                id: item.querySelector('id')?.textContent?.split('/').pop()?.substring(0, 8).toUpperCase(),
-                title: item.querySelector('title')?.textContent || '',
-                link: item.querySelector('link')?.getAttribute('href') || '#',
-                author: item.querySelector('author name')?.textContent || 'UNKNOWN',
-                date: new Date(item.querySelector('published')?.textContent),
-                content: clean(item.querySelector('content')?.textContent || ''),
-                sub: name,
-                tickers: extractTickers(item.querySelector('title')?.textContent || '')
-            }));
+            try {
+                const res = await fetch(url);
+                if (!res.ok) return [];
+                const text = await res.text();
+                const xml = new DOMParser().parseFromString(text, 'text/xml');
+                const items = xml.querySelectorAll('entry');
+                
+                return Array.from(items).map(item => {
+                    const content = item.querySelector('content')?.textContent || '';
+                    const image = extractImage(content);
+                    
+                    return {
+                        id: item.querySelector('id')?.textContent?.split('/').pop()?.substring(0, 8).toUpperCase(),
+                        title: item.querySelector('title')?.textContent || '',
+                        link: item.querySelector('link')?.getAttribute('href') || '#',
+                        author: item.querySelector('author name')?.textContent || 'UNKNOWN',
+                        date: new Date(item.querySelector('published')?.textContent),
+                        content: clean(content),
+                        image: image,
+                        sub: name,
+                        category: category
+                    };
+                });
+            } catch (err) {
+                console.error(`Error fetching r/${name}:`, err);
+                return [];
+            }
         }
 
-        function extractTickers(text) {
-            return (text.match(/\$[A-Z]{1,5}\b/g) || []).filter((v, i, a) => a.indexOf(v) === i);
+        function extractImage(html) {
+            // Try to extract image from content
+            const imgMatch = html.match(/<img[^>]+src="([^">]+)"/);
+            if (imgMatch && imgMatch[1]) {
+                // Decode HTML entities
+                const img = imgMatch[1]
+                    .replace(/&amp;/g, '&')
+                    .replace(/&lt;/g, '<')
+                    .replace(/&gt;/g, '>')
+                    .replace(/&quot;/g, '"');
+                
+                // Filter out Reddit's default images and thumbnails
+                if (!img.includes('default') && 
+                    !img.includes('self') && 
+                    !img.includes('nsfw') &&
+                    !img.includes('spoiler') &&
+                    (img.includes('preview.redd.it') || 
+                     img.includes('i.redd.it') || 
+                     img.includes('external-preview.redd.it') ||
+                     img.includes('imgur.com') ||
+                     img.includes('https://') || 
+                     img.includes('http://'))) {
+                    return img;
+                }
+            }
+            return null;
         }
 
         function clean(html) {
@@ -501,6 +555,8 @@
             div.innerHTML = html;
             return (div.textContent || '')
                 .replace(/submitted by.*/g, '')
+                .replace(/\[link\]/g, '')
+                .replace(/\[comments\]/g, '')
                 .trim()
                 .substring(0, 180);
         }
@@ -513,12 +569,10 @@
             return `${Math.floor(sec / 86400)}d`;
         }
 
-        function formatTimestamp(date) {
-            return date.toTimeString().split(' ')[0];
-        }
-
         function updateStats() {
+            const withImages = posts.filter(p => p.image).length;
             document.getElementById('statTotal').textContent = posts.length;
+            document.getElementById('statImages').textContent = withImages;
             document.getElementById('statUpdate').textContent = new Date().toLocaleTimeString('en-US', {
                 hour: '2-digit',
                 minute: '2-digit'
@@ -536,24 +590,25 @@
                 : posts.filter(p => p.sub === filter);
             
             feed.innerHTML = filtered.map(post => `
-                <article class="post-terminal">
-                    <div class="post-id">#${post.id || 'N/A'}</div>
-                    <div class="post-header-term">
-                        <span class="source-tag">r/${post.sub.toUpperCase()}</span>
-                        <span class="timestamp">${formatTime(post.date)}</span>
-                    </div>
-                    <h2 class="post-title-term">${escape(post.title)}</h2>
-                    ${post.tickers.length ? `
-                        <div class="ticker-bar">
-                            ${post.tickers.map(t => `<span class="ticker-term">${t}</span>`).join('')}
-                        </div>
+                <article class="post-terminal category-${post.category}">
+                    ${post.image ? `
+                        <img src="${post.image}" alt="" class="post-image" onerror="this.style.display='none'">
+                        <div class="image-badge">IMG</div>
                     ` : ''}
-                    ${post.content ? `<p class="post-content-term">${escape(post.content)}</p>` : ''}
-                    <div class="action-bar">
-                        <span class="post-author">u/${post.author}</span>
-                        <a href="${post.link}" target="_blank" class="view-link">
-                            VIEW &gt;&gt;
-                        </a>
+                    <div class="post-id">#${post.id || 'N/A'}</div>
+                    <div class="post-content-area">
+                        <div class="post-header-term">
+                            <span class="source-tag">r/${post.sub}</span>
+                            <span class="timestamp">${formatTime(post.date)}</span>
+                        </div>
+                        <h2 class="post-title-term">${escape(post.title)}</h2>
+                        ${post.content ? `<p class="post-content-term">${escape(post.content)}</p>` : ''}
+                        <div class="action-bar">
+                            <span class="post-author">u/${post.author}</span>
+                            <a href="${post.link}" target="_blank" class="view-link">
+                                VIEW &gt;&gt;
+                            </a>
+                        </div>
                     </div>
                 </article>
             `).join('');
