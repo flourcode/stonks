@@ -273,80 +273,92 @@ function getColor(percentChange) {
     return '#b91c1c';
 }
 
-function squarify(children, x, y, dx, dy) {
-    if (children.length === 0) return [];
-    
-    const total = children.reduce((sum, c) => sum + c.value, 0);
-    
-    function worst(row, w) {
-        const s = row.reduce((sum, c) => sum + c.value, 0);
-        const ww = w * w;
-        const rr = s * s;
-        let max = 0, min = Infinity;
-        for (let c of row) {
-            const r = c.value * c.value;
-            if (r > max) max = r;
-            if (r < min) min = r;
-        }
-        return Math.max(ww * max / rr, rr / (ww * min));
+function squarify(data, x, y, width, height) {
+    if (data.length === 0) return [];
+    if (data.length === 1) {
+        return [{
+            ...data[0],
+            x: x,
+            y: y,
+            width: width,
+            height: height
+        }];
     }
     
-    function layout(row, w, x, y, dx, dy, vertical) {
-        const s = row.reduce((sum, c) => sum + c.value, 0);
-        let pos = vertical ? y : x;
-        
-        return row.map(c => {
-            const size = c.value / s * (vertical ? dy : dx);
-            const rect = vertical 
-                ? { x: x, y: pos, width: w, height: size }
-                : { x: pos, y: y, width: size, height: w };
-            pos += size;
-            return { ...c, ...rect };
-        });
-    }
+    const total = data.reduce((sum, d) => sum + d.value, 0);
+    
+    // Sort by size descending
+    const sorted = [...data].sort((a, b) => b.value - a.value);
     
     const result = [];
-    const stack = [{ children, x, y, dx, dy }];
+    let remaining = [...sorted];
+    let currentX = x;
+    let currentY = y;
+    let remainingWidth = width;
+    let remainingHeight = height;
     
-    while (stack.length > 0) {
-        const { children: kids, x, y, dx, dy } = stack.pop();
+    while (remaining.length > 0) {
+        const isHorizontal = remainingWidth >= remainingHeight;
         
-        if (kids.length === 1) {
-            result.push({ ...kids[0], x, y, width: dx, height: dy });
-            continue;
-        }
+        // Take items for this row/column
+        let rowItems = [];
+        let rowSum = 0;
         
-        const sorted = [...kids].sort((a, b) => b.value - a.value);
-        const vertical = dy > dx;
-        const w = vertical ? dx : dy;
-        
-        let row = [];
-        let remaining = [...sorted];
-        
-        while (remaining.length > 0) {
-            row.push(remaining[0]);
-            const s = row.reduce((sum, c) => sum + c.value, 0);
-            const aspect = worst(row, w);
+        for (let i = 0; i < remaining.length; i++) {
+            rowItems.push(remaining[i]);
+            rowSum += remaining[i].value;
             
-            if (remaining.length === 1 || (remaining.length > 1 && worst([...row, remaining[1]], w) > aspect)) {
-                const laid = layout(row, w, x, y, dx, dy, vertical);
-                result.push(...laid);
-                
-                remaining = remaining.slice(row.length);
-                if (vertical) {
-                    const h = s / total * dy;
-                    x += w;
-                    dx -= w;
-                } else {
-                    const h = s / total * dx;
-                    y += w;
-                    dy -= w;
-                }
-                row = [];
-            } else {
-                remaining = remaining.slice(1);
+            // Stop if we've used enough space or this is the last item
+            const proportion = rowSum / total;
+            if (proportion > 0.3 || i === remaining.length - 1) {
+                break;
             }
         }
+        
+        // Layout this row
+        if (isHorizontal) {
+            const rowWidth = (rowSum / total) * width;
+            let offsetY = currentY;
+            
+            rowItems.forEach(item => {
+                const itemHeight = (item.value / rowSum) * remainingHeight;
+                result.push({
+                    ...item,
+                    x: currentX,
+                    y: offsetY,
+                    width: rowWidth,
+                    height: itemHeight
+                });
+                offsetY += itemHeight;
+            });
+            
+            currentX += rowWidth;
+            remainingWidth -= rowWidth;
+        } else {
+            const rowHeight = (rowSum / total) * height;
+            let offsetX = currentX;
+            
+            rowItems.forEach(item => {
+                const itemWidth = (item.value / rowSum) * remainingWidth;
+                result.push({
+                    ...item,
+                    x: offsetX,
+                    y: currentY,
+                    width: itemWidth,
+                    height: rowHeight
+                });
+                offsetX += itemWidth;
+            });
+            
+            currentY += rowHeight;
+            remainingHeight -= rowHeight;
+        }
+        
+        remaining = remaining.slice(rowItems.length);
+        
+        // Recalculate total for remaining items
+        const newTotal = remaining.reduce((sum, d) => sum + d.value, 0);
+        if (newTotal === 0) break;
     }
     
     return result;
