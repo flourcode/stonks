@@ -390,7 +390,7 @@ function render() {
     
     const layout = createTreemap(stockData, width, height);
     console.log('Layout created:', layout.length, 'cells');
-    console.log('Sample layout:', layout.slice(0, 2));
+    console.log('Sample layout item:', layout[0]);
     
     container.innerHTML = layout.map(item => {
         const color = getColor(item.percentChange);
@@ -402,6 +402,12 @@ function render() {
         if (area < 5000) sizeClass = 'micro';
         else if (area < 12000) sizeClass = 'tiny';
         else if (area < 25000) sizeClass = 'small';
+        
+        // Debug log for first item
+        if (item.ticker === 'NVDA') {
+            console.log('NVDA item:', item);
+            console.log('NVDA marketCap:', item.marketCap);
+        }
         
         let marketCapDisplay;
         if (item.marketCap >= 1000) {
