@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Defense Stock Ticker</title>
+    <title>Defense Stock Treemap</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
@@ -12,14 +12,11 @@
 :root {
     --bg-primary: #1a1a1a;
     --bg-secondary: #252525;
-    --bg-tertiary: #2c2c2c;
     --surface: #222222;
     --border-light: #3a3a3a;
-    --border-medium: #4c4c4c;
     --text-primary: #e0e0e0;
     --text-secondary: #b0b0b0;
     --text-tertiary: #808080;
-    --shadow-soft: rgba(0, 0, 0, 0.1);
 }
 
 * {
@@ -38,7 +35,7 @@ body {
 }
 
 .container {
-    max-width: 1400px;
+    max-width: 1600px;
     margin: 0 auto;
 }
 
@@ -51,7 +48,6 @@ header {
 h1 {
     font-size: 32px;
     font-weight: 700;
-    color: var(--text-primary);
     margin-bottom: 10px;
 }
 
@@ -68,181 +64,85 @@ h1 {
     margin-top: 10px;
 }
 
-/* Stock Ticker */
-.stock-ticker-section {
-    margin-bottom: 30px;
-    background: var(--surface);
-    border: 1px solid var(--border-light);
-    border-radius: 12px;
-    overflow: hidden;
-}
-
-.stock-ticker-header {
-    padding: 16px 20px;
-    background: var(--bg-secondary);
-    border-bottom: 1px solid var(--border-light);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.ticker-title {
-    font-size: 14px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--text-secondary);
-}
-
-.ticker-controls {
+.controls {
     display: flex;
     gap: 10px;
+    margin-bottom: 20px;
 }
 
-.ticker-btn {
-    background: none;
-    border: 1px solid var(--border-medium);
-    color: var(--text-tertiary);
-    padding: 6px 12px;
-    border-radius: 12px;
+.btn {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    color: var(--text-primary);
+    padding: 8px 16px;
+    border-radius: 8px;
     cursor: pointer;
     font-family: inherit;
-    font-size: 11px;
+    font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     transition: all 0.2s;
 }
 
-.ticker-btn:hover {
-    background: var(--bg-tertiary);
+.btn:hover {
+    background: var(--surface);
 }
 
-.ticker-btn.active {
-    background: var(--text-primary);
-    color: var(--bg-primary);
-    border-color: var(--text-primary);
+#treemap {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    height: 700px;
 }
 
-/* Scrolling View */
-.ticker-scroll-view {
-    padding: 20px 0;
+.treemap-cell {
+    position: absolute;
+    border: 2px solid var(--bg-primary);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
     overflow: hidden;
 }
 
-.ticker-scroll-content {
-    display: flex;
-    animation: scroll 60s linear infinite;
-    padding: 0 20px;
+.treemap-cell:hover {
+    opacity: 0.9;
+    z-index: 10;
+    transform: scale(1.02);
 }
 
-.ticker-scroll-content:hover {
-    animation-play-state: paused;
-}
-
-@keyframes scroll {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-}
-
-.stock-card {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    margin-right: 40px;
-    padding: 16px 20px;
-    background: var(--bg-secondary);
-    border-radius: 8px;
-    min-width: 180px;
-    border: 1px solid var(--border-light);
-    flex-shrink: 0;
-    transition: all 0.2s;
-}
-
-.stock-card:hover {
-    background: var(--bg-tertiary);
-    transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.stock-ticker {
-    font-size: 16px;
+.cell-ticker {
+    font-size: 24px;
     font-weight: 700;
-    color: var(--text-primary);
-    letter-spacing: 0.05em;
-    margin-bottom: 6px;
-}
-
-.stock-price {
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--text-primary);
+    color: white;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
     margin-bottom: 4px;
 }
 
-.stock-change {
-    font-size: 13px;
+.cell-change {
+    font-size: 18px;
     font-weight: 600;
-    padding: 4px 8px;
-    border-radius: 6px;
+    color: white;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+    margin-bottom: 8px;
 }
 
-.stock-change.positive {
-    color: #4ade80;
-    background: rgba(74, 222, 128, 0.15);
-}
-
-.stock-change.negative {
-    color: #f87171;
-    background: rgba(248, 113, 113, 0.15);
-}
-
-/* Table View */
-.ticker-table-view {
-    display: none;
-    padding: 0;
-}
-
-.ticker-table-view.active {
-    display: block;
-}
-
-.ticker-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.ticker-table thead th {
-    text-align: left;
-    padding: 16px 20px;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--text-tertiary);
-    background: var(--bg-secondary);
-    border-bottom: 1px solid var(--border-light);
-}
-
-.ticker-table tbody td {
-    padding: 16px 20px;
+.cell-price {
     font-size: 14px;
-    border-bottom: 1px solid var(--border-light);
+    color: rgba(255,255,255,0.9);
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
 }
 
-.ticker-table tbody tr:hover {
-    background: var(--bg-secondary);
-}
-
-.rank-cell {
-    font-weight: 700;
-    color: var(--text-secondary);
-    width: 80px;
-}
-
-.ticker-cell {
-    font-weight: 700;
-    color: var(--text-primary);
-    font-size: 16px;
+.cell-marketcap {
+    font-size: 12px;
+    color: rgba(255,255,255,0.8);
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+    margin-top: 4px;
 }
 
 .loading {
@@ -261,29 +161,49 @@ h1 {
     margin: 20px;
     text-align: center;
 }
+
+/* Small cells get smaller text */
+.treemap-cell.small .cell-ticker {
+    font-size: 16px;
+}
+
+.treemap-cell.small .cell-change {
+    font-size: 14px;
+}
+
+.treemap-cell.small .cell-price,
+.treemap-cell.small .cell-marketcap {
+    font-size: 10px;
+}
+
+.treemap-cell.tiny .cell-ticker {
+    font-size: 14px;
+}
+
+.treemap-cell.tiny .cell-change {
+    font-size: 12px;
+}
+
+.treemap-cell.tiny .cell-price,
+.treemap-cell.tiny .cell-marketcap {
+    display: none;
+}
 </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🎯 Defense Stock Ticker</h1>
-            <div class="subtitle">Live Market Data</div>
+            <h1>🎯 Defense Stock Market Cap Treemap</h1>
+            <div class="subtitle">Size = Market Cap | Color = Performance</div>
             <div class="last-updated" id="lastUpdated">Loading...</div>
         </header>
 
-        <div class="stock-ticker-section">
-            <div class="stock-ticker-header">
-                <span class="ticker-title">Market Activity</span>
-                <div class="ticker-controls">
-                    <button class="ticker-btn active" onclick="switchView('scroll')">Scroll</button>
-                    <button class="ticker-btn" onclick="switchView('table')">Rank</button>
-                    <button class="ticker-btn" onclick="refreshData()">Refresh</button>
-                </div>
-            </div>
-            
-            <div id="tickerContent">
-                <div class="loading">Loading stock data...</div>
-            </div>
+        <div class="controls">
+            <button class="btn" onclick="refreshData()">Refresh</button>
+        </div>
+
+        <div id="treemap">
+            <div class="loading">Loading stock data...</div>
         </div>
     </div>
 
@@ -292,7 +212,27 @@ h1 {
 const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1svXheHx4C1XVLITnVsW7nbT0v-B8tJxDviZG-Op2v58/gviz/tq?tqx=out:csv&sheet=Sheet1';
 
 let stockData = [];
-let currentView = 'scroll';
+
+// Market cap data for major defense stocks (in billions)
+const MARKET_CAPS = {
+    'RTX': 155,
+    'LMT': 120,
+    'BA': 110,
+    'NOC': 70,
+    'GD': 65,
+    'LDOS': 18,
+    'HII': 9,
+    'PLTR': 85,
+    'KTOS': 3,
+    'AVAV': 5,
+    'TDG': 40,
+    'HWM': 25,
+    'RDW': 0.5,
+    'LUNR': 1.2,
+    'AXON': 35,
+    'RKLB': 12,
+    'ASTS': 8
+};
 
 // Fetch stock data from Google Sheet
 async function fetchStockData() {
@@ -318,11 +258,15 @@ async function fetchStockData() {
             
             const values = lines[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
             if (values.length > tickerIndex && values[tickerIndex]) {
+                const ticker = values[tickerIndex];
                 const percentChange = parseFloat(values[changeIndex].replace(/[^0-9.-]/g, ''));
+                const marketCap = MARKET_CAPS[ticker] || 1;
+                
                 data.push({
-                    ticker: values[tickerIndex],
+                    ticker: ticker,
                     price: parseFloat(values[priceIndex].replace(/[^0-9.]/g, '')),
-                    percentChange: percentChange
+                    percentChange: percentChange,
+                    marketCap: marketCap
                 });
             }
         }
@@ -334,112 +278,118 @@ async function fetchStockData() {
     }
 }
 
-// Render scrolling view
-function renderScrollView(data) {
-    const stockCards = data.map(stock => {
-        const isPositive = stock.percentChange >= 0;
-        const arrow = isPositive ? '▲' : '▼';
-        const sign = isPositive ? '+' : '';
-        
-        return `
-            <div class="stock-card">
-                <div class="stock-ticker">${stock.ticker}</div>
-                <div class="stock-price">$${stock.price.toFixed(2)}</div>
-                <div class="stock-change ${isPositive ? 'positive' : 'negative'}">
-                    ${arrow} ${sign}${stock.percentChange.toFixed(2)}%
-                </div>
-            </div>
-        `;
-    }).join('');
+// Get color based on percent change
+function getColor(percentChange) {
+    // Strong positive: bright green
+    if (percentChange >= 5) return '#22c55e';
+    if (percentChange >= 3) return '#4ade80';
+    if (percentChange >= 1) return '#86efac';
+    if (percentChange > 0) return '#bbf7d0';
     
-    // Duplicate for seamless scrolling
-    const content = stockCards + stockCards;
+    // Neutral
+    if (percentChange === 0) return '#6b7280';
     
-    return `
-        <div class="ticker-scroll-view">
-            <div class="ticker-scroll-content">
-                ${content}
-            </div>
-        </div>
-    `;
+    // Negative: shades of red
+    if (percentChange > -1) return '#fca5a5';
+    if (percentChange > -3) return '#f87171';
+    if (percentChange > -5) return '#ef4444';
+    return '#dc2626';
 }
 
-// Render table view (ranked by activity)
-function renderTableView(data) {
-    const sorted = [...data].sort((a, b) => Math.abs(b.percentChange) - Math.abs(a.percentChange));
+// Simple treemap layout using squarified algorithm
+function createTreemap(data, width, height) {
+    const total = data.reduce((sum, d) => sum + d.marketCap, 0);
+    const items = data.map(d => ({
+        ...d,
+        normalizedValue: d.marketCap / total
+    })).sort((a, b) => b.marketCap - a.marketCap);
     
-    const rows = sorted.map((stock, index) => {
-        const isPositive = stock.percentChange >= 0;
-        const arrow = isPositive ? '▲' : '▼';
-        const sign = isPositive ? '+' : '';
+    const layout = [];
+    let x = 0, y = 0, rowHeight = 0;
+    let currentRow = [];
+    let remainingWidth = width;
+    
+    items.forEach((item, index) => {
+        const area = item.normalizedValue * width * height;
+        const itemWidth = area / (height - y);
         
-        return `
-            <tr>
-                <td class="rank-cell">${index + 1}</td>
-                <td class="ticker-cell">${stock.ticker}</td>
-                <td>$${stock.price.toFixed(2)}</td>
-                <td>
-                    <span class="stock-change ${isPositive ? 'positive' : 'negative'}">
-                        ${arrow} ${sign}${stock.percentChange.toFixed(2)}%
-                    </span>
-                </td>
-            </tr>
-        `;
-    }).join('');
+        if (x + itemWidth > width && currentRow.length > 0) {
+            // Start new row
+            y += rowHeight;
+            x = 0;
+            rowHeight = 0;
+            currentRow = [];
+            remainingWidth = width;
+        }
+        
+        const h = rowHeight || (area / itemWidth);
+        
+        layout.push({
+            ...item,
+            x: x,
+            y: y,
+            width: itemWidth,
+            height: h
+        });
+        
+        x += itemWidth;
+        rowHeight = Math.max(rowHeight, h);
+        currentRow.push(item);
+        remainingWidth -= itemWidth;
+    });
     
-    return `
-        <div class="ticker-table-view active">
-            <table class="ticker-table">
-                <thead>
-                    <tr>
-                        <th>Rank</th>
-                        <th>Ticker</th>
-                        <th>Price</th>
-                        <th>Change</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${rows}
-                </tbody>
-            </table>
-        </div>
-    `;
+    return layout;
 }
 
-// Render data
+// Render treemap
 function render() {
-    const container = document.getElementById('tickerContent');
+    const container = document.getElementById('treemap');
     
     if (stockData.length === 0) {
         container.innerHTML = '<div class="loading">No data available</div>';
         return;
     }
     
-    if (currentView === 'scroll') {
-        container.innerHTML = renderScrollView(stockData);
-    } else {
-        container.innerHTML = renderTableView(stockData);
-    }
+    const rect = container.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    
+    const layout = createTreemap(stockData, width, height);
+    
+    container.innerHTML = layout.map(item => {
+        const color = getColor(item.percentChange);
+        const arrow = item.percentChange >= 0 ? '▲' : '▼';
+        const sign = item.percentChange >= 0 ? '+' : '';
+        
+        // Determine size class for font scaling
+        const area = item.width * item.height;
+        let sizeClass = '';
+        if (area < 8000) sizeClass = 'tiny';
+        else if (area < 15000) sizeClass = 'small';
+        
+        return `
+            <div class="treemap-cell ${sizeClass}" style="
+                left: ${item.x}px;
+                top: ${item.y}px;
+                width: ${item.width}px;
+                height: ${item.height}px;
+                background-color: ${color};
+            ">
+                <div class="cell-ticker">${item.ticker}</div>
+                <div class="cell-change">${arrow} ${sign}${item.percentChange.toFixed(2)}%</div>
+                <div class="cell-price">$${item.price.toFixed(2)}</div>
+                <div class="cell-marketcap">${item.marketCap >= 1 ? '$' + item.marketCap.toFixed(1) + 'B' : '$' + (item.marketCap * 1000).toFixed(0) + 'M'}</div>
+            </div>
+        `;
+    }).join('');
     
     document.getElementById('lastUpdated').textContent = 
         `Last updated: ${new Date().toLocaleTimeString()}`;
 }
 
-// Switch view
-function switchView(view) {
-    currentView = view;
-    
-    document.querySelectorAll('.ticker-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    event.target.classList.add('active');
-    render();
-}
-
 // Refresh data
 async function refreshData() {
-    const container = document.getElementById('tickerContent');
+    const container = document.getElementById('treemap');
     container.innerHTML = '<div class="loading">Refreshing...</div>';
     
     try {
@@ -449,6 +399,13 @@ async function refreshData() {
         container.innerHTML = '<div class="error">Failed to load data. Please try again.</div>';
     }
 }
+
+// Handle window resize
+let resizeTimeout;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(render, 250);
+});
 
 // Initial load
 refreshData();
