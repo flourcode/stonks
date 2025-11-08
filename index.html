@@ -1,400 +1,370 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Defense Stock Treemap</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
-    
+<!-- 
+SIMPLE DEFENSE STOCK TICKER UPDATE
+Just replace the relevant sections in your existing oldcode.html
+
+STEP 1: Update your Google Sheet with these tickers
+================================
+In your Google Sheet (https://docs.google.com/spreadsheets/d/1svXheHx4C1XVLITnVsW7nbT0v-B8tJxDviZG-Op2v58/), 
+add these defense tickers:
+
+Ticker | Price | Change%
+-------|-------|--------
+RTX    | =GOOGLEFINANCE("RTX","price") | =GOOGLEFINANCE("RTX","changepct")
+LMT    | =GOOGLEFINANCE("LMT","price") | =GOOGLEFINANCE("LMT","changepct")
+BA     | =GOOGLEFINANCE("BA","price") | =GOOGLEFINANCE("BA","changepct")
+NOC    | =GOOGLEFINANCE("NOC","price") | =GOOGLEFINANCE("NOC","changepct")
+GD     | =GOOGLEFINANCE("GD","price") | =GOOGLEFINANCE("GD","changepct")
+LDOS   | =GOOGLEFINANCE("LDOS","price") | =GOOGLEFINANCE("LDOS","changepct")
+HII    | =GOOGLEFINANCE("HII","price") | =GOOGLEFINANCE("HII","changepct")
+PLTR   | =GOOGLEFINANCE("PLTR","price") | =GOOGLEFINANCE("PLTR","changepct")
+KTOS   | =GOOGLEFINANCE("KTOS","price") | =GOOGLEFINANCE("KTOS","changepct")
+AVAV   | =GOOGLEFINANCE("AVAV","price") | =GOOGLEFINANCE("AVAV","changepct")
+
+Optional additions:
+TDG    | =GOOGLEFINANCE("TDG","price") | =GOOGLEFINANCE("TDG","changepct")
+HWM    | =GOOGLEFINANCE("HWM","price") | =GOOGLEFINANCE("HWM","changepct")
+RDW    | =GOOGLEFINANCE("RDW","price") | =GOOGLEFINANCE("RDW","changepct")
+LUNR   | =GOOGLEFINANCE("LUNR","price") | =GOOGLEFINANCE("LUNR","changepct")
+
+STEP 2: Replace the stock ticker CSS section in your HTML
+================================
+Find the .stock-ticker-section section in your CSS and replace with this:
+-->
+
 <style>
-:root {
-    --bg-primary: #1a1a1a;
-    --bg-secondary: #252525;
-    --surface: #222222;
-    --border-light: #3a3a3a;
-    --text-primary: #e0e0e0;
-    --text-secondary: #b0b0b0;
-    --text-tertiary: #808080;
-}
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Atkinson Hyperlegible Next', sans-serif;
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    line-height: 1.4;
-    padding: 20px;
-    -webkit-font-smoothing: antialiased;
-}
-
-.container {
-    max-width: 1600px;
-    margin: 0 auto;
-}
-
-header {
-    padding: 20px 0 30px 0;
-    border-bottom: 1px solid var(--border-light);
-    margin-bottom: 30px;
-}
-
-h1 {
-    font-size: 32px;
-    font-weight: 700;
-    margin-bottom: 10px;
-}
-
-.subtitle {
-    font-size: 14px;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-}
-
-.last-updated {
-    font-size: 12px;
-    color: var(--text-tertiary);
-    margin-top: 10px;
-}
-
-.controls {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-.btn {
-    background: var(--bg-secondary);
+/* Enhanced Stock Ticker - Reddit Style */
+.stock-ticker-section {
+    margin: 20px 0 30px 0;
+    background: var(--surface);
     border: 1px solid var(--border-light);
-    color: var(--text-primary);
-    padding: 8px 16px;
     border-radius: 8px;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 12px;
+    overflow: hidden;
+}
+
+.stock-ticker-header {
+    padding: 12px 16px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-light);
+    font-size: 11px;
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    transition: all 0.2s;
-}
-
-.btn:hover {
-    background: var(--surface);
-}
-
-#treemap {
-    background: var(--surface);
-    border: 1px solid var(--border-light);
-    border-radius: 12px;
-    overflow: hidden;
-    position: relative;
-    height: 700px;
-}
-
-.treemap-cell {
-    position: absolute;
-    border: 2px solid var(--bg-primary);
+    color: var(--text-secondary);
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    padding: 16px;
+}
+
+.ticker-sort-controls {
+    display: flex;
+    gap: 8px;
+    font-size: 9px;
+    font-weight: 400;
+}
+
+.ticker-sort-btn {
+    background: none;
+    border: 1px solid var(--border-medium);
+    color: var(--text-tertiary);
+    padding: 3px 8px;
+    border-radius: 10px;
     cursor: pointer;
     transition: all 0.2s;
+}
+
+.ticker-sort-btn:hover {
+    background: var(--bg-tertiary);
+}
+
+.ticker-sort-btn.active {
+    background: var(--text-primary);
+    color: var(--bg-primary);
+    border-color: var(--text-primary);
+}
+
+.ticker-scroll-wrapper {
+    position: relative;
     overflow: hidden;
+    padding: 16px 0;
 }
 
-.treemap-cell:hover {
-    opacity: 0.9;
-    z-index: 10;
-    transform: scale(1.02);
+.ticker-scroll-content {
+    display: flex;
+    animation: scroll-ticker 60s linear infinite;
+    padding: 0 20px;
 }
 
-.cell-ticker {
-    font-size: 24px;
+.ticker-scroll-content:hover {
+    animation-play-state: paused;
+}
+
+@keyframes scroll-ticker {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+.stock-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-right: 32px;
+    padding: 8px 16px;
+    background: var(--bg-secondary);
+    border-radius: 6px;
+    min-width: 140px;
+    transition: all 0.2s;
+    border: 1px solid var(--border-light);
+}
+
+.stock-item:hover {
+    background: var(--bg-tertiary);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px var(--shadow-soft);
+}
+
+.stock-ticker {
+    font-size: 13px;
     font-weight: 700;
-    color: white;
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+    color: var(--text-primary);
+    letter-spacing: 0.05em;
     margin-bottom: 4px;
 }
 
-.cell-change {
-    font-size: 18px;
+.stock-price {
+    font-size: 15px;
     font-weight: 600;
-    color: white;
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
-    margin-bottom: 8px;
+    color: var(--text-primary);
+    margin-bottom: 2px;
 }
 
-.cell-price {
-    font-size: 14px;
-    color: rgba(255,255,255,0.9);
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+.stock-percent-change {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
 }
 
-.cell-marketcap {
-    font-size: 12px;
-    color: rgba(255,255,255,0.8);
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
-    margin-top: 4px;
+.stock-change-positive {
+    color: #2d6a3d;
+    background: #e8f5e8;
 }
 
-.loading {
-    text-align: center;
-    padding: 40px;
+.stock-change-negative {
+    color: #8d3636;
+    background: #f5e8e8;
+}
+
+body.dark-mode .stock-change-positive {
+    color: #72a672;
+    background: #2a3d2a;
+}
+
+body.dark-mode .stock-change-negative {
+    color: #b07a7a;
+    background: #3d2a2a;
+}
+
+/* Reddit-style ranking table (alternative view) */
+.ticker-table-view {
+    display: none; /* Toggle with JS */
+}
+
+.ticker-table-view.active {
+    display: block;
+}
+
+.ticker-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ticker-table th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
     color: var(--text-tertiary);
-    font-size: 14px;
+    border-bottom: 1px solid var(--border-light);
+    background: var(--bg-secondary);
 }
 
-.error {
-    background: rgba(248, 113, 113, 0.1);
-    border: 1px solid rgba(248, 113, 113, 0.3);
-    color: #f87171;
-    padding: 16px 20px;
-    border-radius: 8px;
-    margin: 20px;
-    text-align: center;
-}
-
-/* Small cells get smaller text */
-.treemap-cell.small .cell-ticker {
-    font-size: 16px;
-}
-
-.treemap-cell.small .cell-change {
-    font-size: 14px;
-}
-
-.treemap-cell.small .cell-price,
-.treemap-cell.small .cell-marketcap {
-    font-size: 10px;
-}
-
-.treemap-cell.tiny .cell-ticker {
-    font-size: 14px;
-}
-
-.treemap-cell.tiny .cell-change {
+.ticker-table td {
+    padding: 12px 16px;
     font-size: 12px;
+    border-bottom: 1px solid var(--border-light);
 }
 
-.treemap-cell.tiny .cell-price,
-.treemap-cell.tiny .cell-marketcap {
-    display: none;
+.ticker-rank {
+    font-weight: 700;
+    color: var(--text-secondary);
+    width: 50px;
+}
+
+.ticker-company {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.ticker-table tbody tr:hover {
+    background: var(--bg-secondary);
 }
 </style>
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1>🎯 Defense Stock Market Cap Treemap</h1>
-            <div class="subtitle">Size = Market Cap | Color = Performance</div>
-            <div class="last-updated" id="lastUpdated">Loading...</div>
-        </header>
 
-        <div class="controls">
-            <button class="btn" onclick="refreshData()">Refresh</button>
-        </div>
-
-        <div id="treemap">
-            <div class="loading">Loading stock data...</div>
-        </div>
-    </div>
+<!-- 
+STEP 3: Replace the getStockTickerHtml function in your JavaScript
+================================
+Find the getStockTickerHtml() function around line 1891 and replace with this:
+-->
 
 <script>
-// Your existing Google Sheet URL
-const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1svXheHx4C1XVLITnVsW7nbT0v-B8tJxDviZG-Op2v58/gviz/tq?tqx=out:csv&sheet=Sheet1';
-
-let stockData = [];
-
-// Fetch stock data from Google Sheet
-async function fetchStockData() {
-    try {
-        const response = await fetch(SHEET_URL + '&t=' + Date.now());
-        if (!response.ok) throw new Error('Failed to fetch');
-        
-        const csv = await response.text();
-        const lines = csv.split('\n');
-        const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-        
-        const tickerIndex = headers.indexOf('Ticker');
-        const priceIndex = headers.indexOf('Price');
-        const changeIndex = headers.indexOf('Change%');
-        const marketCapIndex = headers.indexOf('Marketcap');
-        
-        if (tickerIndex === -1 || priceIndex === -1 || changeIndex === -1 || marketCapIndex === -1) {
-            throw new Error('Missing required columns');
-        }
-        
-        const data = [];
-        for (let i = 1; i < lines.length; i++) {
-            if (!lines[i].trim()) continue;
-            
-            const values = lines[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
-            if (values.length > tickerIndex && values[tickerIndex]) {
-                const ticker = values[tickerIndex];
-                const percentChange = parseFloat(values[changeIndex].replace(/[^0-9.-]/g, ''));
-                const marketCapRaw = values[marketCapIndex].replace(/[^0-9]/g, '');
-                const marketCapBillions = parseFloat(marketCapRaw) / 1000000000;
-                
-                if (marketCapBillions > 0) {
-                    data.push({
-                        ticker: ticker,
-                        price: parseFloat(values[priceIndex].replace(/[^0-9.]/g, '')),
-                        percentChange: percentChange,
-                        marketCap: marketCapBillions
-                    });
-                }
-            }
-        }
-        
-        return data;
-    } catch (error) {
-        console.error('Error fetching data:', error);
-        throw error;
-    }
-}
-
-// Get color based on percent change
-function getColor(percentChange) {
-    // Strong positive: bright green
-    if (percentChange >= 5) return '#22c55e';
-    if (percentChange >= 3) return '#4ade80';
-    if (percentChange >= 1) return '#86efac';
-    if (percentChange > 0) return '#bbf7d0';
-    
-    // Neutral
-    if (percentChange === 0) return '#6b7280';
-    
-    // Negative: shades of red
-    if (percentChange > -1) return '#fca5a5';
-    if (percentChange > -3) return '#f87171';
-    if (percentChange > -5) return '#ef4444';
-    return '#dc2626';
-}
-
-// Simple treemap layout using squarified algorithm
-function createTreemap(data, width, height) {
-    const total = data.reduce((sum, d) => sum + d.marketCap, 0);
-    const items = data.map(d => ({
-        ...d,
-        normalizedValue: d.marketCap / total
-    })).sort((a, b) => b.marketCap - a.marketCap);
-    
-    const layout = [];
-    let x = 0, y = 0, rowHeight = 0;
-    let currentRow = [];
-    let remainingWidth = width;
-    
-    items.forEach((item, index) => {
-        const area = item.normalizedValue * width * height;
-        const itemWidth = area / (height - y);
-        
-        if (x + itemWidth > width && currentRow.length > 0) {
-            // Start new row
-            y += rowHeight;
-            x = 0;
-            rowHeight = 0;
-            currentRow = [];
-            remainingWidth = width;
-        }
-        
-        const h = rowHeight || (area / itemWidth);
-        
-        layout.push({
-            ...item,
-            x: x,
-            y: y,
-            width: itemWidth,
-            height: h
-        });
-        
-        x += itemWidth;
-        rowHeight = Math.max(rowHeight, h);
-        currentRow.push(item);
-        remainingWidth -= itemWidth;
-    });
-    
-    return layout;
-}
-
-// Render treemap
-function render() {
-    const container = document.getElementById('treemap');
-    
+/**
+ * Generates the full HTML string for the stock ticker with enhanced styling.
+ * Now includes sorting and table view options.
+ * @returns {string} The HTML for the stock ticker section.
+ */
+function getStockTickerHtml() {
     if (stockData.length === 0) {
-        container.innerHTML = '<div class="loading">No data available</div>';
-        return;
+        return '';
     }
     
-    const rect = container.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
+    // Sort by absolute percent change for activity ranking
+    const sortedByActivity = [...stockData].sort((a, b) => 
+        Math.abs(b.percentChange) - Math.abs(a.percentChange)
+    );
     
-    const layout = createTreemap(stockData, width, height);
-    
-    container.innerHTML = layout.map(item => {
-        const color = getColor(item.percentChange);
-        const arrow = item.percentChange >= 0 ? '▲' : '▼';
-        const sign = item.percentChange >= 0 ? '+' : '';
-        
-        // Determine size class for font scaling
-        const area = item.width * item.height;
-        let sizeClass = '';
-        if (area < 8000) sizeClass = 'tiny';
-        else if (area < 15000) sizeClass = 'small';
-        
+    // Create scrolling ticker items
+    const stockItemsHtml = stockData.map(stock => {
+        const changeClass = stock.percentChange >= 0 ? 'stock-change-positive' : 'stock-change-negative';
+        const changeSign = stock.percentChange >= 0 ? '+' : '';
+        const arrow = stock.percentChange >= 0 ? '▲' : '▼';
+
         return `
-            <div class="treemap-cell ${sizeClass}" style="
-                left: ${item.x}px;
-                top: ${item.y}px;
-                width: ${item.width}px;
-                height: ${item.height}px;
-                background-color: ${color};
-            ">
-                <div class="cell-ticker">${item.ticker}</div>
-                <div class="cell-change">${arrow} ${sign}${item.percentChange.toFixed(2)}%</div>
-                <div class="cell-price">$${item.price.toFixed(2)}</div>
-                <div class="cell-marketcap">${item.marketCap >= 1 ? '$' + item.marketCap.toFixed(1) + 'B' : '$' + (item.marketCap * 1000).toFixed(0) + 'M'}</div>
+            <div class="stock-item">
+                <span class="stock-ticker">${stock.ticker}</span>
+                <span class="stock-price">$${stock.price.toFixed(2)}</span>
+                <span class="stock-percent-change ${changeClass}">${arrow} ${changeSign}${stock.percentChange.toFixed(2)}%</span>
             </div>
         `;
     }).join('');
-    
-    document.getElementById('lastUpdated').textContent = 
-        `Last updated: ${new Date().toLocaleTimeString()}`;
+
+    // Duplicate for seamless loop
+    const tickerContent = stockItemsHtml + stockItemsHtml;
+
+    // Create table view with ranking
+    const tableRowsHtml = sortedByActivity.map((stock, index) => {
+        const changeClass = stock.percentChange >= 0 ? 'stock-change-positive' : 'stock-change-negative';
+        const changeSign = stock.percentChange >= 0 ? '+' : '';
+        const arrow = stock.percentChange >= 0 ? '▲' : '▼';
+        
+        return `
+            <tr>
+                <td class="ticker-rank">${index + 1}</td>
+                <td class="ticker-company">${stock.ticker}</td>
+                <td class="stock-price">$${stock.price.toFixed(2)}</td>
+                <td><span class="stock-percent-change ${changeClass}">${arrow} ${changeSign}${stock.percentChange.toFixed(2)}%</span></td>
+            </tr>
+        `;
+    }).join('');
+
+    return `
+        <div class="stock-ticker-section">
+            <div class="stock-ticker-header">
+                <span>🎯 Defense Industrial Base Stocks (20-min delay)</span>
+                <div class="ticker-sort-controls">
+                    <button class="ticker-sort-btn active" onclick="toggleTickerView('scroll')">Scroll</button>
+                    <button class="ticker-sort-btn" onclick="toggleTickerView('table')">Rank</button>
+                </div>
+            </div>
+            
+            <!-- Scrolling ticker view -->
+            <div class="ticker-scroll-wrapper ticker-scroll-view">
+                <div class="ticker-scroll-content">
+                    ${tickerContent}
+                </div>
+            </div>
+            
+            <!-- Table ranking view -->
+            <div class="ticker-table-view">
+                <table class="ticker-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Ticker</th>
+                            <th>Price</th>
+                            <th>Change</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tableRowsHtml}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
 }
 
-// Refresh data
-async function refreshData() {
-    const container = document.getElementById('treemap');
-    container.innerHTML = '<div class="loading">Refreshing...</div>';
+/**
+ * Toggle between scrolling and table view
+ */
+function toggleTickerView(view) {
+    const scrollView = document.querySelector('.ticker-scroll-view');
+    const tableView = document.querySelector('.ticker-table-view');
+    const scrollBtn = document.querySelector('.ticker-sort-btn:nth-child(1)');
+    const tableBtn = document.querySelector('.ticker-sort-btn:nth-child(2)');
     
-    try {
-        stockData = await fetchStockData();
-        render();
-    } catch (error) {
-        container.innerHTML = '<div class="error">Failed to load data. Please try again.</div>';
+    if (view === 'scroll') {
+        scrollView.style.display = 'block';
+        tableView.classList.remove('active');
+        scrollBtn.classList.add('active');
+        tableBtn.classList.remove('active');
+    } else {
+        scrollView.style.display = 'none';
+        tableView.classList.add('active');
+        scrollBtn.classList.remove('active');
+        tableBtn.classList.add('active');
     }
 }
-
-// Handle window resize
-let resizeTimeout;
-window.addEventListener('resize', () => {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(render, 250);
-});
-
-// Initial load
-refreshData();
-
-// Auto-refresh every 5 minutes
-setInterval(refreshData, 5 * 60 * 1000);
 </script>
-</body>
-</html>
+
+<!-- 
+OPTIONAL ENHANCEMENTS
+================================
+
+1. Add volume data to your Google Sheet:
+   Add a "Volume" column with: =GOOGLEFINANCE("RTX","volume")
+
+2. Add news mentions counter:
+   You could add a column that counts how many times the ticker appears 
+   in your RSS feed articles that day
+
+3. Add market cap ranking:
+   Add "MarketCap" column: =GOOGLEFINANCE("RTX","marketcap")
+
+4. Color code by sector:
+   Primes (RTX, LMT, BA, NOC, GD) in one color
+   Tech/Cyber (PLTR, KTOS) in another
+   Emerging/Space (RDW, LUNR) in another
+
+5. Add a "heat index" that combines:
+   - Absolute price change %
+   - Volume spike
+   - News mentions
+   
+   This would give you a "most active" ranking similar to the Reddit ticker
+
+================================
+That's it! Your existing code already handles:
+- Auto-refresh every 15 minutes
+- Google Sheets integration
+- Dark mode
+- Mobile responsive
+- Smooth scrolling
+
+Just update your Google Sheet and swap in these code sections.
+-->
