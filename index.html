@@ -204,17 +204,25 @@ let stockData = [];
 
 async function fetchStockData() {
     try {
+        console.log('Fetching data from sheet...');
         const response = await fetch(SHEET_URL + '&t=' + Date.now());
         if (!response.ok) throw new Error('Failed to fetch');
         
         const csv = await response.text();
+        console.log('CSV received, first 200 chars:', csv.substring(0, 200));
+        
         const lines = csv.split('\n');
+        console.log('Total lines:', lines.length);
+        
         const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+        console.log('Headers:', headers);
         
         const tickerIndex = headers.indexOf('Ticker');
         const priceIndex = headers.indexOf('Price');
         const changeIndex = headers.indexOf('Change%');
         const marketCapIndex = headers.indexOf('Marketcap');
+        
+        console.log('Column indices:', { tickerIndex, priceIndex, changeIndex, marketCapIndex });
         
         if (tickerIndex === -1 || priceIndex === -1 || changeIndex === -1 || marketCapIndex === -1) {
             throw new Error('Missing required columns');
@@ -231,7 +239,7 @@ async function fetchStockData() {
                 const marketCapRaw = values[marketCapIndex].replace(/[^0-9]/g, '');
                 const marketCapBillions = parseFloat(marketCapRaw) / 1000000000;
                 
-                if (marketCapBillions > 0) {
+                if (marketCapBillions > 0 && !isNaN(marketCapBillions)) {
                     data.push({
                         ticker: ticker,
                         price: parseFloat(values[priceIndex].replace(/[^0-9.]/g, '')),
@@ -242,6 +250,8 @@ async function fetchStockData() {
             }
         }
         
+        console.log('Parsed data:', data.length, 'stocks');
+        console.log('Sample:', data.slice(0, 3));
         return data;
     } catch (error) {
         console.error('Error fetching data:', error);
