@@ -198,7 +198,7 @@ h1 {
     </div>
 
 <script>
-const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1svXheHx4C1XVLITnVsW7nbT0v-B8tJxDviZG-Op2v58/gviz/tq?tqx=out:csv&sheet=Sheet1';
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1svXheHx4C1XVLITnVsW7nbT0v-B8tJxDviZG-Op2v58/gviz/tq?tqx=out:csv&gid=414313148';
 
 let stockData = [];
 
@@ -360,6 +360,8 @@ function createTreemap(data, width, height) {
 
 function render() {
     const container = document.getElementById('treemap');
+    console.log('Rendering treemap...');
+    console.log('Stock data length:', stockData.length);
     
     if (stockData.length === 0) {
         container.innerHTML = '<div class="loading">No data available</div>';
@@ -370,7 +372,11 @@ function render() {
     const width = rect.width;
     const height = rect.height;
     
+    console.log('Container dimensions:', width, 'x', height);
+    
     const layout = createTreemap(stockData, width, height);
+    console.log('Layout created:', layout.length, 'cells');
+    console.log('Sample layout:', layout.slice(0, 2));
     
     container.innerHTML = layout.map(item => {
         const color = getColor(item.percentChange);
@@ -407,6 +413,8 @@ function render() {
             </div>
         `;
     }).join('');
+    
+    console.log('Render complete');
     
     document.getElementById('lastUpdated').textContent = 
         `Last updated: ${new Date().toLocaleTimeString()}`;
