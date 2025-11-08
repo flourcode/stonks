@@ -300,24 +300,30 @@ function squarify(data, x, y, width, height) {
     while (remaining.length > 0) {
         const isHorizontal = remainingWidth >= remainingHeight;
         
+        // Calculate remaining total
+        const remainingTotal = remaining.reduce((sum, d) => sum + d.value, 0);
+        
         // Take items for this row/column
         let rowItems = [];
         let rowSum = 0;
         
         for (let i = 0; i < remaining.length; i++) {
-            rowItems.push(remaining[i]);
-            rowSum += remaining[i].value;
+            const item = remaining[i];
+            const testSum = rowSum + item.value;
+            const proportion = testSum / remainingTotal;
             
-            // Stop if we've used enough space or this is the last item
-            const proportion = rowSum / total;
-            if (proportion > 0.3 || i === remaining.length - 1) {
+            rowItems.push(item);
+            rowSum += item.value;
+            
+            // Stop if we've used a good proportion or this is the last item
+            if (proportion > 0.35 || i === remaining.length - 1) {
                 break;
             }
         }
         
         // Layout this row
         if (isHorizontal) {
-            const rowWidth = (rowSum / total) * width;
+            const rowWidth = (rowSum / remainingTotal) * remainingWidth;
             let offsetY = currentY;
             
             rowItems.forEach(item => {
@@ -335,7 +341,7 @@ function squarify(data, x, y, width, height) {
             currentX += rowWidth;
             remainingWidth -= rowWidth;
         } else {
-            const rowHeight = (rowSum / total) * height;
+            const rowHeight = (rowSum / remainingTotal) * remainingHeight;
             let offsetX = currentX;
             
             rowItems.forEach(item => {
@@ -355,10 +361,6 @@ function squarify(data, x, y, width, height) {
         }
         
         remaining = remaining.slice(rowItems.length);
-        
-        // Recalculate total for remaining items
-        const newTotal = remaining.reduce((sum, d) => sum + d.value, 0);
-        if (newTotal === 0) break;
     }
     
     return result;
@@ -405,9 +407,9 @@ function render() {
         if (item.marketCap >= 1000) {
             marketCapDisplay = '$' + (item.marketCap / 1000).toFixed(2) + 'T';
         } else if (item.marketCap >= 1) {
-            marketCapDisplay = '$' + item.marketCap.toFixed(1) + 'B';
+            marketCapDisplay = '$' + Math.round(item.marketCap) + 'B';
         } else {
-            marketCapDisplay = '$' + (item.marketCap * 1000).toFixed(0) + 'M';
+            marketCapDisplay = '$' + Math.round(item.marketCap * 1000) + 'M';
         }
         
         return `
