@@ -213,27 +213,6 @@ const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1svXheHx4C1XVLITnVsW7n
 
 let stockData = [];
 
-// Market cap data for major defense stocks (in billions)
-const MARKET_CAPS = {
-    'RTX': 155,
-    'LMT': 120,
-    'BA': 110,
-    'NOC': 70,
-    'GD': 65,
-    'LDOS': 18,
-    'HII': 9,
-    'PLTR': 85,
-    'KTOS': 3,
-    'AVAV': 5,
-    'TDG': 40,
-    'HWM': 25,
-    'RDW': 0.5,
-    'LUNR': 1.2,
-    'AXON': 35,
-    'RKLB': 12,
-    'ASTS': 8
-};
-
 // Fetch stock data from Google Sheet
 async function fetchStockData() {
     try {
@@ -247,8 +226,9 @@ async function fetchStockData() {
         const tickerIndex = headers.indexOf('Ticker');
         const priceIndex = headers.indexOf('Price');
         const changeIndex = headers.indexOf('Change%');
+        const marketCapIndex = headers.indexOf('Marketcap');
         
-        if (tickerIndex === -1 || priceIndex === -1 || changeIndex === -1) {
+        if (tickerIndex === -1 || priceIndex === -1 || changeIndex === -1 || marketCapIndex === -1) {
             throw new Error('Missing required columns');
         }
         
@@ -260,14 +240,17 @@ async function fetchStockData() {
             if (values.length > tickerIndex && values[tickerIndex]) {
                 const ticker = values[tickerIndex];
                 const percentChange = parseFloat(values[changeIndex].replace(/[^0-9.-]/g, ''));
-                const marketCap = MARKET_CAPS[ticker] || 1;
+                const marketCapRaw = values[marketCapIndex].replace(/[^0-9]/g, '');
+                const marketCapBillions = parseFloat(marketCapRaw) / 1000000000;
                 
-                data.push({
-                    ticker: ticker,
-                    price: parseFloat(values[priceIndex].replace(/[^0-9.]/g, '')),
-                    percentChange: percentChange,
-                    marketCap: marketCap
-                });
+                if (marketCapBillions > 0) {
+                    data.push({
+                        ticker: ticker,
+                        price: parseFloat(values[priceIndex].replace(/[^0-9.]/g, '')),
+                        percentChange: percentChange,
+                        marketCap: marketCapBillions
+                    });
+                }
             }
         }
         
