@@ -3,19 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Defense Stock Treemap</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+    <title>Market Cap</title>
     
 <style>
 :root {
-    --bg-primary: #1a1a1a;
-    --bg-secondary: #252525;
-    --text-primary: #e0e0e0;
-    --text-secondary: #b0b0b0;
-    --text-tertiary: #808080;
-    --border-light: #3a3a3a;
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --text: #1d1d1f;
+    --text-secondary: #6e6e73;
+    --text-tertiary: #86868b;
+    --border: #d2d2d7;
 }
 
 * {
@@ -25,166 +22,181 @@
 }
 
 body {
-    font-family: 'Atkinson Hyperlegible Next', sans-serif;
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    line-height: 1.4;
-    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.47059;
+    font-size: 15px;
+    padding: 48px 24px;
     -webkit-font-smoothing: antialiased;
+    font-weight: 400;
+    letter-spacing: -0.016em;
 }
 
 .container {
-    max-width: 1600px;
+    max-width: 1200px;
     margin: 0 auto;
 }
 
 header {
-    padding: 20px 0 30px 0;
-    border-bottom: 1px solid var(--border-light);
-    margin-bottom: 30px;
+    padding: 0 0 24px 0;
+    margin-bottom: 32px;
 }
 
 h1 {
-    font-size: 32px;
-    font-weight: 700;
-    margin-bottom: 10px;
+    font-size: 48px;
+    font-weight: 590;
+    margin-bottom: 8px;
+    letter-spacing: -0.032em;
+    color: var(--text);
 }
 
 .subtitle {
-    font-size: 14px;
+    font-size: 19px;
     color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
+    font-weight: 400;
+    letter-spacing: -0.022em;
 }
 
 .last-updated {
-    font-size: 12px;
+    font-size: 13px;
     color: var(--text-tertiary);
-    margin-top: 10px;
+    margin-top: 16px;
+    font-weight: 400;
 }
 
 .controls {
     display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 12px;
+    margin-bottom: 24px;
 }
 
 .btn {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-light);
-    color: var(--text-primary);
-    padding: 8px 16px;
-    border-radius: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 20px;
+    border-radius: 980px;
     cursor: pointer;
     font-family: inherit;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    transition: all 0.2s;
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: -0.016em;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
 
 .btn:hover {
-    background: #2a2a2a;
+    background: #f5f5f7;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.btn:active {
+    transform: scale(0.98);
 }
 
 #treemap {
-    background: #f5f5f5;
-    border: 3px solid #2a2a2a;
-    border-radius: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
     overflow: hidden;
     position: relative;
-    height: 800px;
+    height: 680px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
 }
 
 .treemap-cell {
     position: absolute;
-    border: 3px solid #ffffff;
+    border: 1.5px solid var(--bg);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     padding: 20px;
     cursor: pointer;
-    transition: opacity 0.2s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
-    box-sizing: border-box;
 }
 
 .treemap-cell:hover {
-    opacity: 0.85;
+    opacity: 0.9;
     z-index: 10;
+    border-width: 2px;
 }
 
 .cell-ticker {
-    font-size: 28px;
-    font-weight: 800;
+    font-size: 20px;
+    font-weight: 590;
     color: white;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
-    margin-bottom: 6px;
-    letter-spacing: 0.02em;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    margin-bottom: 4px;
+    letter-spacing: -0.022em;
 }
 
 .cell-marketcap {
-    font-size: 22px;
-    font-weight: 700;
+    font-size: 16px;
+    font-weight: 500;
     color: rgba(255,255,255,0.95);
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.15);
     margin-bottom: 8px;
+    letter-spacing: -0.016em;
 }
 
 .cell-change {
-    font-size: 20px;
-    font-weight: 700;
-    color: white;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
-    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.92);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    margin-bottom: 4px;
 }
 
 .cell-price {
-    font-size: 16px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.95);
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+    font-size: 12px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.88);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.12);
 }
 
 .loading {
     text-align: center;
-    padding: 40px;
+    padding: 48px;
     color: var(--text-tertiary);
-    font-size: 14px;
+    font-size: 15px;
 }
 
 .error {
-    background: rgba(248, 113, 113, 0.1);
-    border: 1px solid rgba(248, 113, 113, 0.3);
-    color: #f87171;
-    padding: 16px 20px;
-    border-radius: 8px;
+    background: rgba(255, 59, 48, 0.06);
+    border: 1px solid rgba(255, 59, 48, 0.15);
+    color: #d60000;
+    padding: 16px;
+    border-radius: 12px;
     margin: 20px;
     text-align: center;
+    font-size: 15px;
 }
 
-.treemap-cell.small .cell-ticker { font-size: 20px; }
-.treemap-cell.small .cell-marketcap { font-size: 16px; }
-.treemap-cell.small .cell-change { font-size: 16px; }
-.treemap-cell.small .cell-price { font-size: 13px; }
+.treemap-cell.small .cell-ticker { font-size: 16px; }
+.treemap-cell.small .cell-marketcap { font-size: 13px; }
+.treemap-cell.small .cell-change { font-size: 12px; }
+.treemap-cell.small .cell-price { font-size: 10px; }
 
-.treemap-cell.tiny .cell-ticker { font-size: 16px; }
-.treemap-cell.tiny .cell-marketcap { font-size: 13px; }
-.treemap-cell.tiny .cell-change { font-size: 13px; }
-.treemap-cell.tiny .cell-price { font-size: 11px; }
+.treemap-cell.tiny .cell-ticker { font-size: 13px; }
+.treemap-cell.tiny .cell-marketcap { font-size: 11px; }
+.treemap-cell.tiny .cell-change { font-size: 10px; }
+.treemap-cell.tiny .cell-price { display: none; }
 
-.treemap-cell.micro .cell-ticker { font-size: 12px; }
-.treemap-cell.micro .cell-marketcap { font-size: 11px; }
-.treemap-cell.micro .cell-change { font-size: 11px; }
+.treemap-cell.micro .cell-ticker { font-size: 11px; font-weight: 500; }
+.treemap-cell.micro .cell-marketcap { font-size: 9px; }
+.treemap-cell.micro .cell-change { display: none; }
 .treemap-cell.micro .cell-price { display: none; }
 </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🎯 Defense Stock Market Cap Treemap</h1>
-            <div class="subtitle">Size = Market Cap | Color = Performance</div>
+            <h1>Market Cap</h1>
+            <div class="subtitle">Size by market capitalization · Color by performance</div>
             <div class="last-updated" id="lastUpdated">Loading...</div>
         </header>
 
@@ -193,7 +205,7 @@ h1 {
         </div>
 
         <div id="treemap">
-            <div class="loading">Loading stock data...</div>
+            <div class="loading">Loading...</div>
         </div>
     </div>
 
@@ -284,17 +296,18 @@ async function fetchStockData() {
 }
 
 function getColor(percentChange) {
-    if (percentChange >= 5) return '#10b981';
-    if (percentChange >= 3) return '#34d399';
-    if (percentChange >= 2) return '#6ee7b7';
-    if (percentChange >= 1) return '#86efac';
-    if (percentChange > 0) return '#a7f3d0';
-    if (percentChange === 0) return '#94a3b8';
-    if (percentChange > -1) return '#fca5a5';
-    if (percentChange > -2) return '#f87171';
-    if (percentChange > -3) return '#ef4444';
-    if (percentChange > -5) return '#dc2626';
-    return '#b91c1c';
+    // Subtle, refined Apple-like colors
+    if (percentChange >= 5) return "#34c759";
+    if (percentChange >= 3) return "#52d97d";
+    if (percentChange >= 2) return "#7ee09f";
+    if (percentChange >= 1) return "#a8e6c3";
+    if (percentChange > 0) return "#d0f0e0";
+    if (percentChange === 0) return "#98989d";
+    if (percentChange > -1) return "#ffd3d3";
+    if (percentChange > -2) return "#ffb3b3";
+    if (percentChange > -3) return "#ff8a8a";
+    if (percentChange > -5) return "#ff6666";
+    return "#ff3b30";
 }
 
 function squarify(data, x, y, width, height) {
@@ -487,3 +500,5 @@ setInterval(refreshData, 5 * 60 * 1000);
 </script>
 </body>
 </html>
+
+Now update the color function for more subtle, Apple-like colors:
