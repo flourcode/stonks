@@ -236,8 +236,10 @@ async function fetchStockData() {
             if (values.length > tickerIndex && values[tickerIndex]) {
                 const ticker = values[tickerIndex];
                 const percentChange = parseFloat(values[changeIndex].replace(/[^0-9.-]/g, ''));
-                const marketCapRaw = values[marketCapIndex].replace(/[^0-9]/g, '');
+                const marketCapRaw = values[marketCapIndex].replace(/[\$,]/g, '');
                 const marketCapBillions = parseFloat(marketCapRaw) / 1000000000;
+                
+                console.log(`${ticker}: raw="${values[marketCapIndex]}", cleaned="${marketCapRaw}", billions=${marketCapBillions}`);
                 
                 if (marketCapBillions > 0 && !isNaN(marketCapBillions)) {
                     data.push({
